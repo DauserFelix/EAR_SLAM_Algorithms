@@ -1,108 +1,114 @@
-# Base image with full desktop and Gazebo support
-FROM osrf/ros:humble-desktop-full
+# Basis: ROS 2 Humble (leichtgewichtige ros-base Variante, ohne Desktop)
+FROM ros:humble-ros-base
 
-# Avoid interactive prompts during build
+# Keine interaktiven apt-Prompts & fixe Zeitzone
 ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
 
-# Set up CUDA & GPU environment variables (safe for CPU-only too)
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV NVIDIA_REQUIRE_CUDA="cuda>=11.3"
-ENV PATH=/usr/local/cuda/bin:${PATH}
-ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}
-
-# Set TurtleBot3 model
-ENV TURTLEBOT3_MODEL=burger
-
-# Create a non-root user
+# ============================================================
+# === Abschnitt: Benutzer anlegen                          ===
+# Hier wird ein Nicht-Root-User erstellt (ubuntu), damit
+# du im Container nicht als root arbeiten musst.
+# ============================================================
 ARG USERNAME=ubuntu
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_GID=${USER_UID}
 
-RUN groupadd --gid $USER_GID $USERNAME && \
-    useradd -m -s /bin/bash --uid $USER_UID --gid $USER_GID $USERNAME && \
-    apt update && apt install -y sudo && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME
+RUN groupadd --gid ${USER_GID} ${USERNAME} \
+    && useradd -m -s /bin/bash --uid ${USER_UID} --gid ${USER_GID} ${USERNAME} \
+    \
+    # apt-get vorbereiten
+    && apt-get update \
+    \
+    # ========================================================
+    # === Abschnitt: Ubuntu- und ROS-Pakete installieren   ===
+    # Hier installierst du alles, was systemweit benötigt wird:
+    #   - Tools (git, curl, pip, colcon, compiler)
+    #   - RViz
+    #   - Gazebo + ROS-Bridge
+    #   - TurtleBot3 Pakete
+    #   - Nav2, SLAM Toolbox etc.
+    #
+    # Wenn du weitere ROS- oder apt-Pakete brauchst:
+    #   einfach unten weitere Zeilen hinzufügen:
+    #   ros-humble-mein-paket \
+    # ========================================================
+    && apt-get install -y --no-install-recommends \
+       sudo \
+       git \
+       curl \
+       ca-certificates \
+       gdb gdbserver \
+       python3-pip \
+       python3-colcon-common-extensions \
+       build-essential \
+       \
+       # Visualisierung
+       ros-humble-rviz2 \
+       \
+       # Robot-Description / Joint-State
+       ros-humble-xacro \
+       ros-humble-robot-state-publisher \
+       ros-humble-joint-state-publisher \
+       ros-humble-joint-state-publisher-gui \
+       \
+       # Gazebo + ROS-Brücke
+       ros-humble-gazebo-ros-pkgs \
+       \
+       # TurtleBot3 + Navigation + SLAM
+       ros-humble-turtlebot3 \
+       ros-humble-turtlebot3-gazebo \
+       ros-humble-turtlebot3-navigation2 \
+       ros-humble-slam-toolbox \
+       \
+       # ROS2 Control + Controller
+       ros-humble-ros2-control \
+       ros-humble-ros2-controllers \
+       ros-humble-controller-manager \
+       ros-humble-diff-drive-controller \
+       ros-humble-joint-trajectory-controller \
+    \
+    # Benutzer sudo-Rechte geben
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
+    && chmod 0440 /etc/sudoers.d/${USERNAME} \
+    \
+    # apt-Cache aufräumen (spart viel Speicher)
+    && rm -rf /var/lib/apt/lists/*
 
-# Switch to non-root user
-USER $USERNAME
-WORKDIR /home/$USERNAME
+# TurtleBot3 Modell als Standard setzen
+ENV TURTLEBOT3_MODEL=burger
 
 # ============================================================
-# === BEGIN: Bereich für zusätzliche Ubuntu/ROS-Packages   ===
-# Hier kannst du weitere ROS oder Ubuntu Pakete hinzufügen.
-# Beispiel:
-# ros-humble-mein-extra-paket \
-# sudo apt install -y <dein-paket>
-# === ENDE: Bereich für zusätzliche Ubuntu/ROS-Packages    ===
+# === Abschnitt: Python-Pakete installieren                ===
+# Hier kannst du beliebige pip-Pakete installieren:
+#   pip install numpy scipy matplotlib ...
+# Das läuft als root, daher systemweite Installation.
 # ============================================================
-
-# Install ROS dev tools, TurtleBot3, Gazebo, MoveIt, and visualization tools
-#     ros-humble-robot-state-publisher \ ros-humble-joint-state-publisher \ added but still not build with it
-RUN sudo apt update && sudo apt install -y \
-    git curl gdb gdbserver python3-pip \
-    python3-colcon-common-extensions \
-    ros-humble-xacro \
-    ros-humble-rviz2 \
-    ros-humble-robot-state-publisher \ 
-    ros-humble-joint-state-publisher \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-gazebo-ros-pkgs \
-    ros-humble-turtlebot3 \
-    ros-humble-slam-toolbox \
-    ros-humble-turtlebot3-gazebo \
-    ros-humble-turtlebot3-bringup \
-    ros-humble-turtlebot3-teleop \
-    ros-humble-turtlebot3-navigation2 \
-    ros-humble-moveit \
-    ros-humble-ros2-control \
-    ros-humble-ros2-controllers \
-    ros-humble-controller-manager \
-    ros-humble-diff-drive-controller \
-    ros-humble-joint-trajectory-controller \
-    # === BEGIN: Eigene Ubuntu/ROS-Packages ===
-    # Hier weitere Pakete einfügen, z.B.:
-    # ros-humble-mein-extra-paket \
-    # === END: Eigene Ubuntu/ROS-Packages ===
-    && sudo apt autoremove -y && sudo apt clean
+RUN pip install --no-cache-dir numpy==2.2.6
 
 # ============================================================
-# === BEGIN: Bereich für zusätzliche Python-Pakete         ===
-# Hier kannst du weitere Python Pakete per pip installieren.
-# Beispiel:
-# pip install <dein-python-paket>
-# === ENDE: Bereich für zusätzliche Python-Pakete          ===
+# === Abschnitt: Nutzer wechseln                          ===
+# Ab hier läuft der Container als ubuntu-User.
 # ============================================================
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}
 
-# Python and ROS tools
-RUN pip install --no-cache-dir \
-    numpy==2.2.6 \
-    scipy==1.15.3 \
-    faiss-cpu==1.12.0 \
-    langchain==1.0.3 \
-    langchain-core==1.0.2 \
-    langchain-community==0.4.1 \
-    langchain-huggingface==1.0.0 \
-    langchain-text-splitters==1.0.0 \
-    sentence-transformers==5.1.2 \
-    transformers==4.41.2 \
-    huggingface-hub==0.36.0 \
-    tqdm==4.67.1 \
-    tenacity==9.1.2 \
-    google-ai-generativelanguage==0.9.0 \
-    langchain-google-genai==3.0.0
-# === END: Eigene Python-Pakete ===
-    
-# Setup environment sourcing
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+# ============================================================
+# === Abschnitt: ROS-Umgebung & Workspace einrichten      ===
+# 1) ROS 2 Setup in die .bashrc schreiben
+# 2) Workspace initialisieren
+# 3) Lokales Workspace-Setup beim Start automatisch sourcen
+# ============================================================
+RUN echo "source /opt/ros/humble/setup.bash" >> /home/${USERNAME}/.bashrc \
+    && mkdir -p /home/${USERNAME}/ros2_ws/src \
+    && echo 'if [ -f /home/'${USERNAME}'/ros2_ws/install/setup.bash ]; then source /home/'${USERNAME}'/ros2_ws/install/setup.bash; fi' \
+       >> /home/${USERNAME}/.bashrc
 
-# Create ROS 2 workspace and setup sourcing
-RUN mkdir -p /home/$USERNAME/ros2_ws/src && \
-    echo 'if [ -f /home/'$USERNAME'/ros2_ws/install/setup.bash ]; then source /home/'$USERNAME'/ros2_ws/install/setup.bash; fi' >> /home/$USERNAME/.bashrc
+# Standardverzeichnis beim Start
+WORKDIR /home/${USERNAME}/ros2_ws
 
-# Set workspace as default dir
-WORKDIR /home/$USERNAME/ros2_ws
-
-# Default shell
+# ============================================================
+# === Abschnitt: Standardbefehl                           ===
+# Der Container startet in einer interaktiven Bash-Shell.
+# ============================================================
 CMD ["/bin/bash"]

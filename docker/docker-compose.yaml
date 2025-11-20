@@ -1,45 +1,29 @@
-version: "3.8"
-
 services:
   ros2:
-    image: ros2-turtlebot3
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile
-    container_name: ros2_turtlebot3_gpu
-    privileged: true
-    network_mode: host
-    command: >
-      /bin/bash -c '
-        if [ -z "$$GOOGLE_API_KEY" ]; then
-          echo "GOOGLE_API_KEY is not set. Please pass it as an environment variable.";
-          exit 1;
-        else
-          echo "GOOGLE_API_KEY starts with: $${GOOGLE_API_KEY:0:5}...";
-          exec bash;
-        fi'
+    image: ear_slam_ros2          
+    container_name: ros2_turtlebot3
+    privileged: true              
+    network_mode: host              
     tty: true
     ipc: host
-    volumes:
-      - ../ros2_ws:/home/ubuntu/ros2_ws
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - $XAUTHORITY:/root/.Xauthority
+
     environment:
-      QT_X11_NO_MITSHM: 1
-      DISPLAY: $DISPLAY
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
-      # Standard: GPU deaktiviert
-      NVIDIA_VISIBLE_DEVICES: void
-      NVIDIA_DRIVER_CAPABILITIES: ""
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      TURTLEBOT3_MODEL: burger
 
-    # GPU nur nutzen, wenn verfügbar
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              count: 0
+    volumes:
+      # Dein Workspace vom Host in den Container
+      - ../ros2_ws:/home/ubuntu/ros2_ws
+      # X11-Socket für GUI (Gazebo, RViz)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Xauthority passend zum ubuntu-User im Container
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/ubuntu/.Xauthority:ro
 
-volumes:
-  ros2_ws:
-    driver: local
+    # Einfach interaktive Shell
+    command: ["/bin/bash"]
+
+# Keine extra Volumes nötig, da du bind-mounts verwendest
