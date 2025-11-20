@@ -1,4 +1,4 @@
-[submodule "direct_lidar_inertial_odometry"]
-	path = direct_lidar_inertial_odometry
+[submodule "ros2_ws/src/dlio"]
+	path = ros2_ws/src/dlio
 	url = https://github.com/vectr-ucla/direct_lidar_inertial_odometry.git
 	branch = feature/ros2
