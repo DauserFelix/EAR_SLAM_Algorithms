@@ -86,6 +86,9 @@ touch ~/.ros/fastdds.xml
   </profiles>
 </dds>
 ```
+```bash
+export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
+``
 
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 [dlio_odom_node-1] |               Direct LiDAR-Inertial Odometry v1.1.1               |
@@ -156,14 +159,5 @@ colcon build
 oder nur ein bestimmtes
 colcon build --packages-select slam_tools
 ```
-
-# requirements
-
-## pip
-
-´´´bash
-pip3 install pandas numpy matplotlib
-´´´
-
 
 # Evaluierung im Vergleich mit LIO-SAM
