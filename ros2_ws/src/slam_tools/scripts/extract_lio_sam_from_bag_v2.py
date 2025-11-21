@@ -13,14 +13,13 @@ from geometry_msgs.msg import TransformStamped
 BAG_PATH = "/data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap"
 TARGET_FRAME = "map"
 SOURCE_FRAME = "liosam_base_link"
-OUTPUT_CSV = "/home/ubuntu/ros2_ws/src/slam_tools/output/lio_sam_gt.csv"
+OUTPUT_CSV = "/data/lio_sam.csv"
 
 
 # ----------------------------------------------------
-# Quaternion helpers (NumPy-safe)
+# Quaternion helpers
 # ----------------------------------------------------
 def quaternion_matrix(q):
-    """ Convert quaternion (x,y,z,w) into a 4x4 rotation matrix """
     x, y, z, w = q
     n = x*x + y*y + z*z + w*w
     if n < np.finfo(float).eps:
@@ -47,7 +46,6 @@ def quaternion_matrix(q):
 
 
 def quaternion_from_matrix(M):
-    """ Extract quaternion (w,x,y,z) from 4x4 rotation matrix """
     m = M[:3, :3]
     t = np.trace(m)
 
@@ -77,8 +75,34 @@ def quaternion_from_matrix(M):
             x = (m[0,2] + m[2,0]) / s
             y = (m[1,2] + m[2,1]) / s
             z = 0.25 * s
-
     return np.array([x, y, z, w])
+
+
+def quat_mul(q1, q2):
+    x1, y1, z1, w1 = q1
+    x2, y2, z2, w2 = q2
+    return np.array([
+        w1*x2 + x1*w2 + y1*z2 - z1*y2,
+        w1*y2 - x1*z2 + y1*w2 + z1*x2,
+        w1*z2 + x1*y2 - y1*x2 + z1*w2,
+        w1*w2 - x1*x2 - y1*y2 - z1*z2
+    ])
+
+
+# ----------------------------------------------------
+# Quaternion logarithm → exact angular velocity
+# ----------------------------------------------------
+def quat_log(q):
+    """Return vector part of quaternion logarithm (so3 element)."""
+    x, y, z, w = q
+    v = np.array([x, y, z])
+    nv = np.linalg.norm(v)
+
+    if nv < 1e-12:
+        return np.zeros(3)
+
+    theta = np.arctan2(nv, w)
+    return theta * v / nv
 
 
 # ----------------------------------------------------
@@ -95,7 +119,6 @@ def add_tf(tf: TransformStamped, static=False):
 
 
 def find_parent(child):
-    """ search both static + dynamic TFs """
     if child in tf_tree:
         return tf_tree[child]
     if child in tf_static_tree:
@@ -104,21 +127,17 @@ def find_parent(child):
 
 
 def compute_transform_to_target(child_frame):
-
     chain = []
     current = child_frame
 
-    # walk chain until TARGET_FRAME
     while current != TARGET_FRAME:
         result = find_parent(current)
         if result is None:
             return None
-
         parent, tf = result
         chain.append(tf)
         current = parent
 
-    # combine transforms
     T = np.eye(4)
     for tf in reversed(chain):
         tr = tf.transform.translation
@@ -153,13 +172,20 @@ def main():
     os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
     csv_file = open(OUTPUT_CSV, "w")
     writer = csv.writer(csv_file)
-    writer.writerow(["time_sec", "px", "py", "pz", "qx", "qy", "qz", "qw"])
+    writer.writerow([
+        "time_sec", "px", "py", "pz",
+        "qx", "qy", "qz", "qw",
+        "vx", "vy", "vz",
+        "wx", "wy", "wz"
+    ])
+
+    last_pos = None
+    last_q = None
+    last_time = None
 
     while reader.has_next():
-        (topic, data, t) = reader.read_next()
-        msg_type = topic_types[topic]
-
-        if msg_type != "tf2_msgs/msg/TFMessage":
+        topic, data, t = reader.read_next()
+        if topic_types[topic] != "tf2_msgs/msg/TFMessage":
             continue
 
         msg = deserialize_message(data, TFMessage)
@@ -177,9 +203,39 @@ def main():
 
             px, py, pz = T[0, 3], T[1, 3], T[2, 3]
             qx, qy, qz, qw = quaternion_from_matrix(T)
+            q_curr = np.array([qx, qy, qz, qw])
 
             timestamp = tf.header.stamp.sec + tf.header.stamp.nanosec * 1e-9
-            writer.writerow([timestamp, px, py, pz, qx, qy, qz, qw])
+
+            vx = vy = vz = 0.0
+            wx = wy = wz = 0.0
+
+            if last_pos is not None:
+                dt = timestamp - last_time
+                if dt > 0:
+
+                    # linear velocity
+                    vx = (px - last_pos[0]) / dt
+                    vy = (py - last_pos[1]) / dt
+                    vz = (pz - last_pos[2]) / dt
+
+                    # exact angular velocity
+                    q_inv = np.array([-last_q[0], -last_q[1], -last_q[2], last_q[3]])
+                    q_delta = quat_mul(q_inv, q_curr)
+
+                    omega = (2.0 * quat_log(q_delta)) / dt
+                    wx, wy, wz = omega
+
+            writer.writerow([
+                timestamp, px, py, pz,
+                qx, qy, qz, qw,
+                vx, vy, vz,
+                wx, wy, wz
+            ])
+
+            last_pos = np.array([px, py, pz])
+            last_q = q_curr
+            last_time = timestamp
 
     csv_file.close()
     print("DONE →", OUTPUT_CSV)
