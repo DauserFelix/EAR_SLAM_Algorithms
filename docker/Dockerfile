@@ -43,6 +43,13 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
        python3-colcon-common-extensions \
        build-essential \
        \
+       # ---- DLIO Dependencies ----
+       libomp-dev \
+       libpcl-dev \
+       libeigen3-dev \
+       ros-humble-pcl-ros \
+       ros-humble-sensor-msgs \
+       \
        # Visualisierung
        ros-humble-rviz2 \
        \
@@ -67,6 +74,11 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
        ros-humble-controller-manager \
        ros-humble-diff-drive-controller \
        ros-humble-joint-trajectory-controller \
+       \
+       # ROS2 Bag
+       ros-humble-rosbag2-storage-mcap  \
+       # --- Developer Tools ---
+       tree \
     \
     # Benutzer sudo-Rechte geben
     && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
@@ -79,12 +91,13 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
 ENV TURTLEBOT3_MODEL=burger
 
 # ============================================================
-# === Abschnitt: Python-Pakete installieren                ===
+# === Abschnitt: Python-Pakete als root installieren       ===
 # Hier kannst du beliebige pip-Pakete installieren:
 #   pip install numpy scipy matplotlib ...
 # Das läuft als root, daher systemweite Installation.
 # ============================================================
-RUN pip install --no-cache-dir numpy==2.2.6
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # ============================================================
 # === Abschnitt: Nutzer wechseln                          ===
@@ -92,6 +105,16 @@ RUN pip install --no-cache-dir numpy==2.2.6
 # ============================================================
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
+
+# ============================================================
+# === Abschnitt: Python-Pakete als user installieren       ===
+# Hier kannst du beliebige pip-Pakete installieren:
+#   pip install numpy scipy matplotlib ...
+# Das läuft als root, daher systemweite Installation.
+# ============================================================
+RUN pip install --no-cache-dir --user rosbags \
+    && echo 'export PATH=/home/ubuntu/.local/bin:$PATH' >> /home/ubuntu/.bashrc
+
 
 # ============================================================
 # === Abschnitt: ROS-Umgebung & Workspace einrichten      ===

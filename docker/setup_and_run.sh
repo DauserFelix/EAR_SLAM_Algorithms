@@ -39,5 +39,3 @@ echo "    docker exec -it ros2_turtlebot3 bash"
 echo
 echo "Workspace liegt unter:"
 echo "    ~/git/EAR_SLAM_Algorithms/ros2_ws"
-echo
-echo "Viel Erfolg!"

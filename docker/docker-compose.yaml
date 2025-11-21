@@ -22,6 +22,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       # Xauthority passend zum ubuntu-User im Container
       - ${XAUTHORITY:-$HOME/.Xauthority}:/home/ubuntu/.Xauthority:ro
+      # >>> Data-Verzeichnis mounten <<<
+      - ../data:/data
 
     # Einfach interaktive Shell
     command: ["/bin/bash"]

@@ -253,3 +253,7 @@ ros2_ws/log/
 CMakeCache.txt
 CMakeFiles/
 cmake-install.cmake
+
+# Analyse-Outputs nicht committen
+ros2_ws/src/slam_tools/output/*
+data/*
