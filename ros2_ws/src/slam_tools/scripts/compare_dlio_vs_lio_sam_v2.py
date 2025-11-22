@@ -3,6 +3,13 @@ import os
 import pandas as pd
 import numpy as np
 from glob import glob
+from scipy.stats import linregress
+from motion_metrics import compute_velocity, compute_acceleration, compute_gyro_z
+from error_correlations import (
+    plot_error_vs_acc,
+    plot_error_vs_gyro,
+    plot_error_vs_velocity
+)
 
 from accessible_plots import (
     plot_accessible,
@@ -11,7 +18,12 @@ from accessible_plots import (
     plot_xy_error_heatmap,
     quaternion_to_yaw,
     plot_yaw_error,
-    plot_error_vs_imu
+    plot_error_vs_imu,
+    plot_accessible_hexbin,
+    plot_error_vs_yaw,
+    plot_yaw_heatmap,
+    plot_yaw_derivative_vs_error,
+    plot_error_violin
 )
 
 
@@ -214,6 +226,53 @@ def main():
         dlio, err_norm, t_dlio,
         save_path=os.path.join(OUT_DIR, "error_vs_imu.png")
     )
+
+    # ----------------------------------------
+    # Motion Metrics berechnen
+    # ----------------------------------------
+    vel_mag = compute_velocity(dlio)
+    acc_mag = compute_acceleration(dlio)
+    gyro_z  = compute_gyro_z(dlio)
+
+    # Downsample für Heatmaps (Performance)
+    ds = slice(0, len(err_norm), 10)
+
+    # ----------------------------------------
+    # Heatmaps / Korrelationen
+    # ----------------------------------------
+    plot_error_vs_acc(
+        t_dlio[ds], err_norm[ds], acc_mag[ds],
+        save_path=os.path.join(OUT_DIR, "error_vs_acc.png")
+    )
+
+    plot_error_vs_gyro(
+        t_dlio[ds], err_norm[ds], gyro_z[ds],
+        save_path=os.path.join(OUT_DIR, "error_vs_gyro.png")
+    )
+
+    plot_error_vs_velocity(
+        t_dlio[ds], err_norm[ds], vel_mag[ds],
+        save_path=os.path.join(OUT_DIR, "error_vs_vel.png")
+    )
+
+    # --- Neue Diagnostikplots ---
+    yaw_err = np.unwrap(np.arctan2(
+        2*(dlio["qw"]*dlio["qz"] + dlio["qx"]*dlio["qy"]),
+        1 - 2*(dlio["qy"]**2 + dlio["qz"]**2)
+    )) - np.unwrap(np.arctan2(
+        2*(lio_interp["qw"]*lio_interp["qz"] + lio_interp["qx"]*lio_interp["qy"]),
+        1 - 2*(lio_interp["qy"]**2 + lio_interp["qz"]**2)
+    ))
+
+    plot_error_vs_yaw(t_dlio, err_norm, yaw_err, OUT_DIR)
+    plot_yaw_heatmap(err_norm, yaw_err, OUT_DIR)
+    plot_yaw_derivative_vs_error(t_dlio, yaw_err, err_norm, OUT_DIR)
+
+    plot_error_violin(
+        err_norm,
+        save_path=os.path.join(OUT_DIR, "violin_error.png")
+    )
+
 
 
     print("Alle 2D Plots gespeichert.")

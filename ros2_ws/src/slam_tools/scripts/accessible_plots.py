@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import linregress
 
 
 # ---------------------------------------
@@ -233,3 +234,138 @@ def plot_error_vs_imu(dlio, err_norm, t_dlio, save_path):
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
+def plot_accessible_hexbin(x, y, xlabel, ylabel, title, save_path):
+    plt.figure(figsize=(8,6))
+    hb = plt.hexbin(
+        x, y,
+        gridsize=60,
+        cmap="viridis",
+        mincnt=1
+    )
+    plt.colorbar(hb, label="Count")
+    plt.xlabel(xlabel, fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
+    plt.title(title, fontsize=16)
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=200)
+    plt.savefig(save_path.replace(".png", ".svg"))
+    plt.close()
+
+def plot_error_vs_yaw(t, err_xy, yaw_err, out):
+    """Scatter + Regression für Fehler vs. Yaw Drift."""
+    slope, intercept, r_value, p_value, std_err = linregress(yaw_err, err_xy)
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(yaw_err, err_xy, s=5, alpha=0.3, label="Samples")
+
+    x_line = np.linspace(min(yaw_err), max(yaw_err), 200)
+    plt.plot(x_line, slope * x_line + intercept, color="red",
+             linewidth=2, label=f"Linear Fit (R={r_value:.2f})")
+
+    plt.xlabel("Yaw Error [rad]")
+    plt.ylabel("XY Error [m]")
+    plt.title("Error vs. Yaw Drift")
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.legend()
+
+    plt.savefig(out + "/error_vs_yaw.png", dpi=200)
+    plt.close()
+    print("✓ error_vs_yaw.png gespeichert.")
+
+
+def plot_yaw_heatmap(err_xy, yaw_err, out):
+    """2D-Hexbin-Heatmap Error vs Yaw Error."""
+    plt.figure(figsize=(10, 6))
+    hb = plt.hexbin(yaw_err, err_xy, gridsize=60, cmap="viridis", mincnt=1)
+
+    plt.xlabel("Yaw Error [rad]")
+    plt.ylabel("XY Error [m]")
+    plt.title("2D Heatmap: XY Error vs. Yaw Drift")
+    cb = plt.colorbar(hb)
+    cb.set_label("Count")
+
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.savefig(out + "/error_vs_yaw_heatmap.png", dpi=200)
+    plt.close()
+    print("✓ error_vs_yaw_heatmap.png gespeichert.")
+
+
+
+def plot_yaw_derivative_vs_error(t, yaw_err, err_xy, out):
+    """Yaw-Fehleränderung vs Error (zeigt plötzliche Yaw-Sprünge)."""
+
+    dt = np.gradient(t)
+    dyaw = np.gradient(yaw_err) / dt  # yaw rate error
+
+    plt.figure(figsize=(10, 6))
+    hb = plt.hexbin(np.abs(dyaw), err_xy,
+                    gridsize=70, cmap="plasma", mincnt=1)
+
+    plt.xlabel("|d(Yaw Error)/dt|  [rad/s]")
+    plt.ylabel("XY Error [m]")
+    plt.title("Error vs. Yaw Error Change Rate")
+    cb = plt.colorbar(hb)
+    cb.set_label("Count")
+
+    plt.grid(True, linestyle="--", alpha=0.3)
+    plt.savefig(out + "/error_vs_yaw_derivative.png", dpi=200)
+    plt.close()
+    print("✓ error_vs_yaw_derivative.png gespeichert.")
+
+
+def plot_error_violin(err_norm, save_path):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from scipy.stats import gaussian_kde
+
+    # --- KDE für Violin ermitteln ---
+    data = np.array(err_norm)
+    kde = gaussian_kde(data)
+    y = np.linspace(data.min(), data.max(), 300)
+    density = kde(y)
+
+    # Normieren, damit die Violine seitlich passt
+    density = density / density.max() * 0.4  # Breite der Violine
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Barrierefreie Farben
+    face_color = "#4477AA"
+    edge_color = "black"
+
+    # Violine links und rechts
+    ax.fill_betweenx(
+        y, -density, density,
+        facecolor=face_color,
+        edgecolor=edge_color,
+        linewidth=1.2,
+        alpha=0.9,
+        label="DLIO Error Distribution"
+    )
+
+    # Quartile
+    q1, q2, q3 = np.percentile(data, [25, 50, 75])
+    ax.plot([0], [q2], 'o', color="white", markersize=10)     # Median-Punkt
+    ax.hlines([q1, q2, q3], xmin=-0.4, xmax=0.4,
+              colors="white", linestyles="--", linewidth=2)
+
+    # Achsenlabels
+    ax.set_title("Distribution of XY Error (Violin Plot)")
+    ax.set_xlabel("DLIO")
+    ax.set_ylabel("XY Error [m]")
+
+    # Kein unnötiges x-Grid
+    ax.set_xlim(-0.5, 0.5)
+    ax.set_xticks([0])
+    ax.set_xticklabels(["DLIO"])
+
+    # Y-Grid
+    ax.grid(True, linestyle="--", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=200)
+    plt.close()
+
