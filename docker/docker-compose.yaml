@@ -24,6 +24,8 @@ services:
       - ${XAUTHORITY:-$HOME/.Xauthority}:/home/ubuntu/.Xauthority:ro
       # >>> Data-Verzeichnis mounten <<<
       - ../data:/data
+      # >>> Output-Verzeichnis mounten <<<
+      - ../output:/output
 
     # Einfach interaktive Shell
     command: ["/bin/bash"]

@@ -24,13 +24,14 @@ Duration:          919.432676656s
 Start:             Aug  2 2023 12:37:39.668494163 (1690979859.668494163)
 End:               Aug  2 2023 12:52:59.101170819 (1690980779.101170819)
 Messages:          582076
-Topic information: Topic: /cmd_vel | Type: geometry_msgs/msg/Twist | Count: 4933 | Serialization Format: cdr
-                   Topic: /odometry/imu | Type: nav_msgs/msg/Odometry | Count: 91948 | Serialization Format: cdr
-                   Topic: /velodyne_points | Type: sensor_msgs/msg/PointCloud2 | Count: 9119 | Serialization Format: cdr
-                   Topic: /imu/data | Type: sensor_msgs/msg/Imu | Count: 91974 | Serialization Format: cdr
-                   Topic: /tf_static | Type: tf2_msgs/msg/TFMessage | Count: 1 | Serialization Format: cdr
-                   Topic: /tf | Type: tf2_msgs/msg/TFMessage | Count: 361097 | Serialization Format: cdr
-                   Topic: /odom | Type: nav_msgs/msg/Odometry | Count: 23004 | Serialization Format: cdr
+Topic information: 
+    Topic: /cmd_vel         | Type: geometry_msgs/msg/Twist     | Count: 4933   | Serialization Format: cdr
+    Topic: /odometry/imu    | Type: nav_msgs/msg/Odometry       | Count: 91948  | Serialization Format: cdr
+    Topic: /velodyne_points | Type: sensor_msgs/msg/PointCloud2 | Count: 9119   | Serialization Format: cdr
+    Topic: /imu/data        | Type: sensor_msgs/msg/Imu         | Count: 91974  | Serialization Format: cdr
+    Topic: /tf_static       | Type: tf2_msgs/msg/TFMessage      | Count: 1      | Serialization Format: cdr
+    Topic: /tf              | Type: tf2_msgs/msg/TFMessage      | Count: 361097 | Serialization Format: cdr
+    Topic: /odom            | Type: nav_msgs/msg/Odometry       | Count: 23004  | Serialization Format: cdr
 ```
 
  Die PointCloud2-Struktur ist wie folgt:
@@ -88,8 +89,8 @@ touch ~/.ros/fastdds.xml
 ```
 ```bash
 export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
-``
-
+```
+```bash
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 [dlio_odom_node-1] |               Direct LiDAR-Inertial Odometry v1.1.1               |
 [dlio_odom_node-1] +-------------------------------------------------------------------+
@@ -113,7 +114,7 @@ export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
 [dlio_odom_node-1] | CPU Load         ::   6.94 %     // Avg:   5.24 / Max:  20.83     |
 [dlio_odom_node-1] | RAM Allocation   :: 268.63 MB                                     |
 [dlio_odom_node-1] +-------------------------------------------------------------------+
-
+```
 # Ausführung
 Terminal 1:
 ```bash
