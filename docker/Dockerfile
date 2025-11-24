@@ -67,6 +67,10 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
        ros-humble-turtlebot3-gazebo \
        ros-humble-turtlebot3-navigation2 \
        ros-humble-slam-toolbox \
+       ros-humble-pointcloud-to-laserscan \
+       ros-humble-rqt-graph \
+       ros-humble-rqt-gui \
+       ros-humble-rqt-gui-py \
        \
        # ROS2 Control + Controller
        ros-humble-ros2-control \

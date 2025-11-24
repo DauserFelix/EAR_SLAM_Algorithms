@@ -135,30 +135,31 @@ ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --c
 ```
 
 
-
-# ros2 Diverse Befehle
-
-ros2 package erzeugen
-```bash
-cd ~/ros2_ws/src
-ros2 pkg create --build-type ament_cmake mein_package
-ros2 pkg create --build-type ament_python my_python_pkg
-```
-
-package löschen
-```bash
-cd ~/ros2_ws
-rm -rf src/<package_name>
-rm -rf build install log
-```
-
-bauen:
-```bash
-cd ~/ros2_ws
-colcon build
-
-oder nur ein bestimmtes
-colcon build --packages-select slam_tools
-```
-
 # Evaluierung im Vergleich mit LIO-SAM
+
+# AUsführung 25. November 2025 mit SLAM-TOOLBOX (2D)
+
+Terminal 1:
+```bash
+rqt_graph
+```
+
+Terminal 2:
+```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path qos_tf.yaml
+```
+
+Terminal 3:
+```bash
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node --ros-args -r cloud_in:=/velodyne_points -r scan:=/scan
+```
+
+Terminal 4:
+```bash
+ros2 run slam_toolbox sync_slam_toolbox_node
+```
+
+Terminal 5:
+```bash
+./universal_pose_logger.py --mode topic --topic /slam_toolbox
+```

@@ -37,7 +37,10 @@
   docker compose down
   ```
   Danach ggf. erneut bauen mit `docker compose build` (z.B. nach Änderungen an Dockerfile oder docker-compose.yaml).
-
+- Docker COntainer beenden (in einer Bash-Shell innerhalb des Containers):
+```bash
+exit
+```
 ---
 
 

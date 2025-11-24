@@ -18,7 +18,7 @@ SLAM ist somit ein *Pipeline*-*Prozess*, kein einzelner Befehl.
 - cartographer_ros
 - rtabmap_ros
 
-## a) ROS2 slam_toolbox (2D) – kompakte Erklärung
+## 3) ROS2 slam_toolbox (2D) – kompakte Erklärung
 
 ### 1) Eingangs-Topics
 
@@ -69,6 +69,13 @@ twist.twist.angular.x       #x=0!, Rolle um Längsachse → macht kein Bodenrobo
 twist.twist.angular.y       #y=0!, Nicken/Pitch → macht kein Bodenroboter
 twist.twist.angular.z       #Drehgeschwindigkeit um die Hochachse (Yaw), Einheit rad/s
 ```
+#### a) Anmerkungen
+Um eine PointCloud (3D) in einen Laserscan (2D) zu konvertieren, gibt es eine Standardlösung:  
+`pointcloud-to-laserscan`
+```bash
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node --ros-args -r cloud_in:=/velodyne_points -r scan:=/scan
+```
+
 ### 2) Interne Verarbeitung (Pipeline)
 Front-End
 - Umwandlung LaserScan → 2D-Punkte
@@ -113,3 +120,5 @@ Optionale SLAM-Toolbox-Services:
 `map_frame`, `odom_frame`, `base_frame`  
 `use_scan_matching`  
 `use_loop_closure`  
+
+## 4) direct_lidar_inertial_odometry

@@ -30,9 +30,9 @@ from accessible_plots import (
 # ======================================================
 # Pfade
 # ======================================================
-DLIO_DIR = "/data"
+DLIO_DIR    = "/data"
 LIO_SAM_CSV = "/data/lio_sam.csv"
-OUT_DIR = "/output"
+OUT_DIR     = "/output"
 
 
 # ======================================================
