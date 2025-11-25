@@ -1,0 +1,32 @@
+digraph G {
+"liosam_map" -> "liosam_odom"[label=" Broadcaster: default_authority\nAverage rate: 100.178\nBuffer length: 5.021\nMost recent transform: 1690979910.355053\nOldest transform: 1690979905.333989\n"];
+"velodyne" -> "liosam_map"[label=" Broadcaster: default_authority\nAverage rate: 100.2\nBuffer length: 5.01\nMost recent transform: 1690979910.36597\nOldest transform: 1690979905.35599\n"];
+"L515" -> "L515_scan"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"halterung" -> "L515"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"kamerabox" -> "halterung"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"chassis_link" -> "base_arm"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "chassis_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"odom" -> "base_link"[label=" Broadcaster: default_authority\nAverage rate: 25.202\nBuffer length: 4.96\nMost recent transform: 1690979910.341689\nOldest transform: 1690979905.38169\n"];
+"chassis_link" -> "boxlink"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"chassis_link" -> "kamerabox"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"velodyne" -> "imu"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"velodyne_base_link" -> "velodyne"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"chassis_link" -> "velodyne_base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"liosam_odom" -> "liosam_base_link"[label=" Broadcaster: default_authority\nAverage rate: 100.178\nBuffer length: 5.021\nMost recent transform: 1690979910.355053\nOldest transform: 1690979905.333989\n"];
+"map" -> "odom"[label=" Broadcaster: default_authority\nAverage rate: 50.2\nBuffer length: 5.0\nMost recent transform: 1690979910.564637\nOldest transform: 1690979905.564639\n"];
+"arm_link_5" -> "Gripper"[label=" Broadcaster: default_authority\nAverage rate: 5.209\nBuffer length: 4.8\nMost recent transform: 1690979910.153399\nOldest transform: 1690979905.353689\n"];
+"arm_link_4" -> "arm_link_5"[label=" Broadcaster: default_authority\nAverage rate: 5.209\nBuffer length: 4.8\nMost recent transform: 1690979910.153399\nOldest transform: 1690979905.353689\n"];
+"arm_link_3" -> "arm_link_4"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"arm_link_5" -> "Gripper2"[label=" Broadcaster: default_authority\nAverage rate: 5.209\nBuffer length: 4.8\nMost recent transform: 1690979910.153399\nOldest transform: 1690979905.353689\n"];
+"arm_link_5" -> "Gripper3"[label=" Broadcaster: default_authority\nAverage rate: 5.209\nBuffer length: 4.8\nMost recent transform: 1690979910.153399\nOldest transform: 1690979905.353689\n"];
+"base_arm" -> "arm_link_1"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"arm_link_1" -> "arm_link_2"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"arm_link_2" -> "arm_link_3"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"chassis_link" -> "flipper_link"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"chassis_link" -> "flipper_link_mimic"[label=" Broadcaster: default_authority\nAverage rate: 10.204\nBuffer length: 4.9\nMost recent transform: 1690979910.325379\nOldest transform: 1690979905.425387\n"];
+"liosam_odom" -> "lidar_link"[label=" Broadcaster: default_authority\nAverage rate: 4.219\nBuffer length: 4.74\nMost recent transform: 1690979909.75073\nOldest transform: 1690979905.010535\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1764086291.8168943"[ shape=plaintext ] ;
+}->"map";
+}

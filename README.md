@@ -146,17 +146,60 @@ rqt_graph
 
 Terminal 2:
 ```bash
-ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path qos_tf.yaml
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml --clock --remap /tf:=/tf_raw
+
+
 ```
 
 Terminal 3:
 ```bash
 ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node --ros-args -r cloud_in:=/velodyne_points -r scan:=/scan
+
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node \
+  --ros-args \
+  -r cloud_in:=/velodyne_points \
+  -r scan:=/scan \
+  -p target_frame:=liosam_base_link \
+  -p use_sim_time:=true
+
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node \
+  --ros-args \
+  -r cloud_in:=/velodyne_points \
+  -p target_frame:=liosam_base_link \
+  -p min_height:=-1.0 \
+  -p max_height:=1.0 \
+  -p range_min:=0.2 \
+  -p range_max:=50.0 \
+  -r scan:=/scan
+
 ```
 
 Terminal 4:
 ```bash
 ros2 run slam_toolbox sync_slam_toolbox_node
+
+ros2 run slam_toolbox sync_slam_toolbox_node \
+  --ros-args -p use_sim_time:=true
+
+ros2 run slam_toolbox sync_slam_toolbox_node \
+  --ros-args \
+  -p base_frame:=liosam_base_link \
+  -p odom_frame:=liosam_odom \
+  -p map_frame:=map \
+  -p scan_topic:=/scan \
+  -p use_sim_time:=true
+
+ros2 run slam_toolbox sync_slam_toolbox_node \
+  --ros-args \
+  -p base_frame:=liosam_base_link \
+  -p odom_frame:=odom \
+  -p map_frame:=map \
+  -p scan_topic:=/scan \
+  -p use_sim_time:=true
+
+
 ```
 
 Terminal 5:
