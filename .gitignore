@@ -237,3 +237,6 @@ cmake-build-*/
 # Catkin / Colcon Python stuff
 .colcon/
 catkin_generated/
+
+# rosbag
+*.bag
