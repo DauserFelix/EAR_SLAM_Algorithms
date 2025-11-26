@@ -240,3 +240,4 @@ catkin_generated/
 
 # rosbag
 *.bag
+*.db3
