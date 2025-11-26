@@ -174,3 +174,15 @@ Terminal 4:
 ```bash
 ./slam_pose_logger.py
 ```
+
+ros2 run slam_toolbox sync_slam_toolbox_node \
+--ros-args \
+-p use_sim_time:=true \
+-p scan_topic:=/scan \
+-p base_frame:=liosam_base_link \
+-p map_frame:=map \
+-p provide_odom_frame:=false \
+-p publish_tf:=false \
+-p use_scan_matching:=false \
+-p use_online_correlative_scan_matching:=false \
+-p mode:=mapping

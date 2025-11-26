@@ -42,3 +42,8 @@ topic zuhören:
 ros2 topic echo /topic --once
 ros2 topic echo /scan --once
 ```
+
+transformation anschauen zur simulierten Zeit
+```bash
+ros2 run tf2_ros tf2_echo map liosam_base_link --ros-args -p use_sim_time:=true
+```
