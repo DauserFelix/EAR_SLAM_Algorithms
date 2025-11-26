@@ -36,3 +36,9 @@ Mit zusätzlichen Datentypen
 ```bash
 ros2 topic list -t
 ```
+
+topic zuhören:
+```bash
+ros2 topic echo /topic --once
+ros2 topic echo /scan --once
+```

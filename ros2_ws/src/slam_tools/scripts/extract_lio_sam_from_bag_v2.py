@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+"""
+Extrahiert die vollständige 3D-Pose von LIO-SAM aus einer ROS2-Bagdatei,
+indem alle TF-Transformationen ausgewertet und die Transformation vom
+SOURCE_FRAME zum TARGET_FRAME rekonstruiert wird.
+
+Funktionen des Skripts:
+
+1) Öffnet eine MCAP-Bagdatei und liest alle /tf- und /tf_static-Nachrichten.
+2) Baut daraus eine TF-Kette zwischen SOURCE_FRAME → TARGET_FRAME auf.
+3) Berechnet für jeden Zeitstempel:
+      - Position (px, py, pz)
+      - Orientierung als Quaternion (qx, qy, qz, qw)
+4) Berechnet zusätzlich:
+      - Lineare Geschwindigkeit (vx, vy, vz) per Differenzenquotient
+      - Exakte Rotationsgeschwindigkeit (wx, wy, wz) über die
+        Quaternion-Logarithmus-Methode
+5) Schreibt alle Werte geordnet in eine CSV-Datei:
+      time_sec, position, quaternion, linear velocity, angular velocity
+
+Ergebnis: Eine vollständige, zeitlich sortierte Pose-Zeitreihe von LIO-SAM,
+perfekt geeignet für Trajektorienvergleich, Fehleranalyse und Plotting.
+"""
+
 import rosbag2_py
 import numpy as np
 import csv

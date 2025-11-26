@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+"""
+Dieses Skript loggt die Odometry-Ausgaben von DLIO in eine CSV-Datei.
+Es abonniert das Topic /dlio/odom_node/odom (nav_msgs/Odometry) und
+speichert jede eingehende Pose samt Geschwindigkeit.
+
+Für jeden Datensatz werden folgende Werte aufgezeichnet:
+    - time_sec : Zeitstempel
+    - px, py, pz : Position
+    - qx, qy, qz, qw : Orientierung (Quaternion)
+    - vx, vy, vz : Lineare Geschwindigkeit
+    - wx, wy, wz : Winkelgeschwindigkeit
+
+Die Ausgabe wird mit einem Zeitstempel benannt:
+    MM-DD_hh-mm_pose_logger_output.csv
+und unter /data abgelegt.
+
+Zweck:
+Erzeugt eine vollständige Zeitreihe der DLIO-Pose für spätere
+Trajektorienvergleiche (2D/3D), Fehlerberechnungen und Plots.
+"""
+
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry

@@ -52,6 +52,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
        \
        # Visualisierung
        ros-humble-rviz2 \
+       ros-humble-tf2-tools \
        \
        # Robot-Description / Joint-State
        ros-humble-xacro \
@@ -81,6 +82,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
        \
        # ROS2 Bag
        ros-humble-rosbag2-storage-mcap  \
+       \
        # --- Developer Tools ---
        tree \
     \
@@ -92,7 +94,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && rm -rf /var/lib/apt/lists/*
 
 # TurtleBot3 Modell als Standard setzen
-ENV TURTLEBOT3_MODEL=burger
+#ENV TURTLEBOT3_MODEL=burger
 
 # ============================================================
 # === Abschnitt: Python-Pakete als root installieren       ===

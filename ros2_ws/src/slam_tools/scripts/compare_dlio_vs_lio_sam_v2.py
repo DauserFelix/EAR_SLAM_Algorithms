@@ -1,15 +1,47 @@
 #!/usr/bin/env python3
+"""
+Dieses Skript führt eine vollständige 2D-Vergleichsanalyse zwischen DLIO und LIO-SAM durch.
+Es nutzt die DLIO-Pose als Referenzzeitskala und interpoliert die LIO-SAM-Pose darauf.
+
+Funktionen des Skripts:
+
+1) Daten laden:
+   - DLIO: automatisch die neueste *_pose_logger_output.csv aus /data
+   - LIO-SAM: feste Datei /data/lio_sam.csv
+
+2) Zeit-Synchronisation:
+   - Normiert beide Zeitachsen auf t=0
+   - Interpoliert alle LIO-SAM-Positions- und Quaternionwerte auf die DLIO-Zeitstempel
+
+3) Trajektorienvergleich:
+   - Normalisiert alle Trajektorien auf denselben Startpunkt
+   - Berechnet XY-Fehler, RMSE, mittleren Fehler, maximalen Fehler
+   - Erzeugt 2D-Trajektorieplots, Fehlerverläufe, Histogramme, CDF, XY-Fehlerheatmaps
+
+4) Orientierung & Drift:
+   - Wandelt Quaternionen in Yaw um
+   - Berechnet Yaw-Drift zwischen DLIO und LIO-SAM
+   - Erstellt Yaw-Drift-Plots und Korrelationen
+
+5) IMU-basierte Fehleranalyse:
+   - Berechnet Geschwindigkeit, Beschleunigung und Gyro-Z-Werte aus DLIO
+   - Korrelierte Plots: Fehler vs. Beschleunigung, Gyro, Geschwindigkeit
+
+6) Erweiterte Diagnostik:
+   - Fehler vs. Yaw
+   - Yaw-Fehler-Heatmaps
+   - Fehlerverteilung (Violin-Plot)
+
+Alle erzeugten Grafiken und Ergebnisse werden unter /output gespeichert.
+Das Skript liefert eine vollständige 2D-Analyse der Unterschiede zwischen DLIO und LIO-SAM.
+"""
+
 import os
 import pandas as pd
 import numpy as np
 from glob import glob
+import matplotlib.pyplot as plt
 from scipy.stats import linregress
-from motion_metrics import compute_velocity, compute_acceleration, compute_gyro_z
-from error_correlations import (
-    plot_error_vs_acc,
-    plot_error_vs_gyro,
-    plot_error_vs_velocity
-)
 
 from accessible_plots import (
     plot_accessible,
@@ -130,6 +162,70 @@ def save_results(rmse, mean_err, max_err):
 
     print("Ergebnisse gespeichert.")
 
+# ======================================================
+# Error correlations
+# ======================================================
+
+def plot_error_vs_acc(t, error, acc, save_path):
+    plot_accessible_hexbin(
+        x=acc,
+        y=error,
+        xlabel="Acceleration |a| [m/s²]",
+        ylabel="XY Error [m]",
+        title="Error vs. Acceleration",
+        save_path=save_path
+    )
+
+
+def plot_error_vs_gyro(t, error, gyro, save_path):
+    plot_accessible_hexbin(
+        x=np.abs(gyro),
+        y=error,
+        xlabel="|Gyro_z| [rad/s]",
+        ylabel="XY Error [m]",
+        title="Error vs. Gyro Rate",
+        save_path=save_path
+    )
+
+
+def plot_error_vs_velocity(t, error, vel, save_path):
+    plot_accessible_hexbin(
+        x=vel,
+        y=error,
+        xlabel="Velocity |v| [m/s]",
+        ylabel="XY Error [m]",
+        title="Error vs. Velocity",
+        save_path=save_path
+    )
+
+# ======================================================
+# Motion metrics
+# ======================================================
+
+def compute_velocity(dlio):
+    vx = dlio["vx"].values
+    vy = dlio["vy"].values
+    vz = dlio["vz"].values
+    vel_mag = np.sqrt(vx**2 + vy**2 + vz**2)
+    return vel_mag
+
+
+def compute_acceleration(dlio):
+    ax = dlio["wx"].values * 0  # falls keine accelerometer-Daten: Dummy
+    ay = dlio["wy"].values * 0
+    az = dlio["wz"].values * 0
+
+    if all(k in dlio.columns for k in ["ax", "ay", "az"]):
+        ax = dlio["ax"].values
+        ay = dlio["ay"].values
+        az = dlio["az"].values
+
+    acc_mag = np.sqrt(ax**2 + ay**2 + az**2)
+    return acc_mag
+
+
+def compute_gyro_z(dlio):
+    return dlio["wz"].values
 
 # ======================================================
 # MAIN

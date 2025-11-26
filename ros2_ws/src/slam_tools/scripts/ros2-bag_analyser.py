@@ -1,4 +1,22 @@
 #!/usr/bin/env python3
+"""
+Dieses Skript analysiert eine ROS 2-Bag-Datei im MCAP-Format und liefert zwei Auswertungen:
+
+1) Bag-Metadaten:
+   - Dateinamen, Größe, Dauer, Startzeit
+   - Anzahl aller Nachrichten
+   - Auflistung aller Topics mit Typ und Message-Count
+
+2) TF-Analyse:
+   - Auswertung aller /tf- und /tf_static-Nachrichten
+   - Ermittlung aller Child-Frames und deren Parent-Frames
+   - Zählung aller empfangenen Transforms
+   - Erster und letzter Zeitstempel pro Frame
+   - Zeitspanne und daraus berechnete Frequenz (Hz)
+
+Damit erhält man eine vollständige Übersicht über die Struktur und Konsistenz der TF-Bäume sowie alle relevanten Bag-Informationen.
+"""
+
 import rosbag2_py
 import numpy as np
 from rclpy.serialization import deserialize_message
