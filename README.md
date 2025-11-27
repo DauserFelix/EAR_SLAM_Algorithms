@@ -11,8 +11,6 @@ rosbags-convert \
 ```
 
 ```bash
-sudo apt install ros-humble-rosbag2-storage-mcap 
-
 ros2 bag info -s mcap /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap
 ```
 
@@ -131,6 +129,7 @@ ros2 launch direct_lidar_inertial_odometry dlio.launch.py   pointcloud_topic:=/v
 
 Terminal 3:
 ```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock -r 2
 ```
 
