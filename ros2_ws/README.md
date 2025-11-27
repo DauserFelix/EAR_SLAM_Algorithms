@@ -28,6 +28,11 @@ oder nur ein bestimmtes
 colcon build --packages-select slam_tools
 ```
 
+package (python) starten:
+```bash
+ros2 run my_pkg my_pkg
+```
+
 topics:
 ```bash
 ros2 topic list
