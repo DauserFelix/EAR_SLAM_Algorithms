@@ -2,6 +2,7 @@
 # Barrierefreie Plot-Utilities für wissenschaftliche Analysen
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa
 import numpy as np
 from scipy.stats import (
     gaussian_kde,
@@ -10,9 +11,9 @@ from scipy.stats import (
 
 from plot_manager.helpers import (
     quaternion_to_yaw,
+    quat_to_rot
 )
-
-
+    
 # ---------------------------------------
 # Farbpalette (Okabe–Ito, farbsehschwächenfreundlich)
 # ---------------------------------------
@@ -369,7 +370,6 @@ def plot_error_vs_yaw(t, err_xy, yaw_err, out):
 
     plt.savefig(out + "/error_vs_yaw.png", dpi=200)
     plt.close()
-    print("✓ error_vs_yaw.png gespeichert.")
 
 # ===================================================================
 # BARRIEREFREIE YAW HEATMAP
@@ -388,7 +388,6 @@ def plot_yaw_heatmap(err_xy, yaw_err, out):
     plt.grid(True, linestyle="--", alpha=0.3)
     plt.savefig(out + "/error_vs_yaw_heatmap.png", dpi=200)
     plt.close()
-    print("✓ error_vs_yaw_heatmap.png gespeichert.")
 
 # ===================================================================
 # BARRIEREFREIE YAW DERIVATIVE VS ERROR
@@ -413,7 +412,6 @@ def plot_yaw_derivative_vs_error(t, yaw_err, err_xy, out):
     plt.grid(True, linestyle="--", alpha=0.3)
     plt.savefig(out + "/error_vs_yaw_derivative.png", dpi=200)
     plt.close()
-    print("✓ error_vs_yaw_derivative.png gespeichert.")
 
 # ===================================================================
 # BARRIEREFREIE ERROR VIOLIN
@@ -556,3 +554,143 @@ def plot_trajectory_colored_by_error(px, py, err_xy, save_path):
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
+# ===================================================================
+# BARRIEREFREIE 3D PLOT
+# ===================================================================
+def plot_trajectory_with_frames(
+    x, y, z, qx, qy, qz, qw,
+    save_path,
+    x_ref=None, y_ref=None, z_ref=None
+):
+    """
+    Final barrierefreier 3D-Trajektorienplot:
+    - Downsampling & Glättung
+    - Automatische Frame-Abstände
+    - Orientierung klar sichtbar
+    - Okabe–Ito Farben
+    (Imports und quat_to_rot kommen von oben!)
+    """
+
+    # Farben: Okabe–Ito Palette
+    c_traj = ACCESSIBLE_COLORS[0]   # blau
+    c_ref  = ACCESSIBLE_COLORS[7]   # schwarz
+    c_x    = ACCESSIBLE_COLORS[1]   # orange
+    c_y    = ACCESSIBLE_COLORS[2]   # grün
+    c_z    = ACCESSIBLE_COLORS[5]   # hellblau
+
+    # -----------------------------
+    # Downsampling der Trajektorie
+    # -----------------------------
+    N = len(x)
+    ds_factor = max(1, N // 2500)     # ~2500 Samples max
+    x_ds = x[::ds_factor]
+    y_ds = y[::ds_factor]
+    z_ds = z[::ds_factor]
+
+    # -----------------------------
+    # Trajektorie glätten
+    # -----------------------------
+    def smooth(a, n=20):
+        return np.convolve(a, np.ones(n)/n, mode='same')
+
+    xs = smooth(x_ds, 20)
+    ys = smooth(y_ds, 20)
+    zs = smooth(z_ds, 20)
+
+    # -----------------------------
+    # Größe der Szene für Skalierung
+    # -----------------------------
+    traj_extent = np.linalg.norm([
+        np.max(x) - np.min(x),
+        np.max(y) - np.min(y),
+        np.max(z) - np.min(z)
+    ])
+    axis_length = traj_extent * 0.05    # 5% der Szene
+
+    # -----------------------------
+    # Frames stark ausdünnen
+    # -----------------------------
+    frame_step = max(60, N // 25)   # nur ~25 Frames
+
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # -----------------------------
+    # Referenz glätten & zeichnen
+    # -----------------------------
+    if x_ref is not None:
+        ds_ref = max(1, len(x_ref) // 2500)
+
+        x_ref_ds = x_ref[::ds_ref]
+        y_ref_ds = y_ref[::ds_ref]
+        z_ref_ds = z_ref[::ds_ref]
+
+        # Weniger glätten (n=8 statt 20)
+        x_ref_s = smooth(x_ref_ds, 8)
+        y_ref_s = smooth(y_ref_ds, 8)
+        z_ref_s = smooth(z_ref_ds, 8)
+
+        ax.plot(
+            x_ref_s, y_ref_s, z_ref_s,
+            linestyle="-",     # durchgezogen
+            linewidth=0.8,     # DEUTLICH dicker
+            color=ACCESSIBLE_COLORS[3],  # kräftiges pink
+            alpha=0.9,
+            label="reference"
+        )
+
+    # -----------------------------
+    # Geglättete Algorithmus-Trajektorie
+    # -----------------------------
+    ax.plot(
+        xs, ys, zs,
+        color=c_traj,
+        linewidth=0.8,
+        alpha=0.9,
+        label="trajectory"
+    )
+
+    # -----------------------------
+    # Frames zeichnen
+    # -----------------------------
+    for i in range(0, N, frame_step):
+        R = quat_to_rot(qx[i], qy[i], qz[i], qw[i])  # kommt von oben
+        p = np.array([x[i], y[i], z[i]])
+
+        ax.plot(
+            [p[0], p[0] + R[0,0]*axis_length],
+            [p[1], p[1] + R[1,0]*axis_length],
+            [p[2], p[2] + R[2,0]*axis_length],
+            color=c_x, linewidth=2.2
+        )
+        ax.plot(
+            [p[0], p[0] + R[0,1]*axis_length],
+            [p[1], p[1] + R[1,1]*axis_length],
+            [p[2], p[2] + R[2,1]*axis_length],
+            color=c_y, linewidth=2.2
+        )
+        ax.plot(
+            [p[0], p[0] + R[0,2]*axis_length],
+            [p[1], p[1] + R[1,2]*axis_length],
+            [p[2], p[2] + R[2,2]*axis_length],
+            color=c_z, linewidth=2.2
+        )
+
+    # -----------------------------
+    # Plot-Stil
+    # -----------------------------
+    ax.set_xlabel("x (m)", fontsize=14)
+    ax.set_ylabel("y (m)", fontsize=14)
+    ax.set_zlabel("z (m)", fontsize=14)
+    ax.set_title("Trajectory with Orientation Frames", fontsize=18)
+
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend(fontsize=12, framealpha=0.95, edgecolor="black")
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=200)
+    plt.savefig(save_path.replace(".png", ".svg"))
+    plt.close()
+
+

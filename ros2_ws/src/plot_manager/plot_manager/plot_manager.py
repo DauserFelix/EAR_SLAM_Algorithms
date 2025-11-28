@@ -29,7 +29,8 @@ from plot_manager.accessible_plots import (
     plot_yaw_derivative_vs_error,
     plot_error_violin,
     plot_violin_multi,
-    plot_trajectory_colored_by_error
+    plot_trajectory_colored_by_error,
+    plot_trajectory_with_frames
 )
 
 
@@ -62,20 +63,20 @@ def run_single_plot_with_reference(csv_path, ref_path):
     err_xy, yaw_err = compute_errors(ref, interp)
 
     # --------------------------------------------------------
-    # IMU auf Referenzzeit interpolieren
+    # IMU interpolieren
     # --------------------------------------------------------
-    imu_interp = {
+    imu_interp_df = pd.DataFrame({
         "wx": np.interp(t_ref, t, df["wx"].values),
         "wy": np.interp(t_ref, t, df["wy"].values),
         "wz": np.interp(t_ref, t, df["wz"].values),
         "vx": np.interp(t_ref, t, df["vx"].values),
         "vy": np.interp(t_ref, t, df["vy"].values),
         "vz": np.interp(t_ref, t, df["vz"].values),
-    }
+    })
 
-    # --------------------------------------------------------
-    # 1) Trajektorie des Algorithmus
-    # --------------------------------------------------------
+    # ========================================================
+    # 1) Trajektorie
+    # ========================================================
     plot_accessible(
         curves=[{
             "x": interp["px"],
@@ -89,33 +90,33 @@ def run_single_plot_with_reference(csv_path, ref_path):
         equal_axis=True
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # 2) Error über Zeit
-    # --------------------------------------------------------
+    # ========================================================
     plot_error_over_time_multi(
         t_ref,
         {name: err_xy},
         f"{out}/error_over_time.png"
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # 3) CDF
-    # --------------------------------------------------------
+    # ========================================================
     plot_cdf_multi({name: err_xy}, f"{out}/cdf.png")
 
-    # --------------------------------------------------------
+    # ========================================================
     # 4) Histogramm
-    # --------------------------------------------------------
+    # ========================================================
     plot_histogram_multi({name: err_xy}, f"{out}/hist.png")
 
-    # --------------------------------------------------------
+    # ========================================================
     # 5) Violin
-    # --------------------------------------------------------
+    # ========================================================
     plot_violin_multi({name: err_xy}, f"{out}/violin.png")
 
-    # --------------------------------------------------------
-    # 6) Trajektorie gefärbt nach Fehler
-    # --------------------------------------------------------
+    # ========================================================
+    # 6) Fehlergefärbte Trajektorie (2D)
+    # ========================================================
     plot_trajectory_colored_by_error(
         interp["px"],
         interp["py"],
@@ -123,39 +124,77 @@ def run_single_plot_with_reference(csv_path, ref_path):
         f"{out}/traj_error.png"
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # 7) Heatmap
-    # --------------------------------------------------------
+    # ========================================================
     plot_xy_error_heatmap(
         interp["px"], interp["py"],
         err_xy,
         f"{out}/xy_error_heatmap.png"
     )
 
-    # --------------------------------------------------------
-    # 8) Yaw Error
-    # --------------------------------------------------------
+    # ========================================================
+    # 8) Yaw Fehler
+    # ========================================================
     plot_yaw_error(
-        ref,   # DataFrame (Referenz)
-        interp,  # Dict mit numpy-Arrays
+        ref,        # DataFrame
+        interp,     # dict
         t_ref,
         f"{out}/yaw_error.png"
     )
 
-
-    # --------------------------------------------------------
-    # 9) IMU + Error (korrekt)
-    # --------------------------------------------------------
+    # ========================================================
+    # 9) IMU vs Fehler
+    # ========================================================
     plot_error_vs_imu(
-        imu_interp,
+        imu_interp_df,     # <-- jetzt korrekt: DataFrame
         err_xy,
-        t_ref,      # FIX!!
+        t_ref,
         f"{out}/imu.png"
     )
 
+    # ========================================================
+    # 10) Yaw vs Error Scatter + Regression
+    # ========================================================
+    plot_error_vs_yaw(
+        t_ref,
+        err_xy,
+        yaw_err,
+        out
+    )
+
+    # ========================================================
+    # 11) Yaw vs Error Heatmap
+    # ========================================================
+    plot_yaw_heatmap(
+        err_xy,
+        yaw_err,
+        out
+    )
+
+    # ========================================================
+    # 12) dYaw/dt vs Error
+    # ========================================================
+    plot_yaw_derivative_vs_error(
+        t_ref,
+        yaw_err,
+        err_xy,
+        out
+    )
+
+    # ========================================================
+    # 13) 3D Trajectory with Frames (barrierefrei)
+    # ========================================================
+    plot_trajectory_with_frames(
+        interp["px"], interp["py"], interp["pz"],
+        interp["qx"], interp["qy"], interp["qz"], interp["qw"],
+        x_ref=ref["px"].values,
+        y_ref=ref["py"].values,
+        z_ref=ref["pz"].values,
+        save_path=f"{out}/trajectory_3d_{name}.png"
+    )
+
     print(f"✓ Singleplots gespeichert unter: {out}")
-
-
 
 
 
@@ -172,14 +211,15 @@ def run_multi_plot(csv_paths):
     ref_path = csv_paths[0]
     ref = load_csv(ref_path)
 
-    # Referenz-Zeit normalisieren
+    # Zeit normalisieren
     t_ref = ref["time_sec"].values - ref["time_sec"].values[0]
 
-    names_all = []      # wirklich alle
-    names_plot = []     # nur Nicht-Referenz!
+    names_all = []      # alle CSV-Namen
+    names_plot = []     # nur Nicht-Referenz
     errs_all = {}
     yaw_errs_all = {}
     csv_data = {}
+    interpolations = {}  # <--- FEHLTE
 
     # --------------------------------------------------------
     # CSVs verarbeiten
@@ -190,9 +230,7 @@ def run_multi_plot(csv_paths):
 
         print(f"\n→ Verarbeitung: {name}")
 
-        # -------------------------
-        # REFERENZ-Fall
-        # -------------------------
+        # REFERENZ
         if path == ref_path:
             interp = {
                 k: ref[k].values
@@ -202,22 +240,18 @@ def run_multi_plot(csv_paths):
             err_xy = np.zeros(len(t_ref))
             yaw_err = np.zeros(len(t_ref))
 
-        # -------------------------
-        # VERGLEICHS-Fälle
-        # -------------------------
+        # VERGLEICHS-DATEN
         else:
             t_interp, interp = interpolate_to_reference(ref, df)
             err_xy, yaw_err = compute_errors(ref, interp)
-            names_plot.append(name)           # <— nur diese anzeigen!
+            names_plot.append(name)
 
-        # Daten speichern
+        # Speichern
         names_all.append(name)
         errs_all[name] = err_xy
         yaw_errs_all[name] = yaw_err
-        csv_data[name] = {
-            "interp": interp,
-            "raw": df
-        }
+        csv_data[name] = {"interp": interp, "raw": df}
+        interpolations[name] = interp     # <--- jetzt korrekt
 
     # --------------------------------------------------------
     # 1) Trajektorienvergleich (ALLE)
@@ -248,12 +282,12 @@ def run_multi_plot(csv_paths):
     plot_violin_multi(errs_no_ref, f"{out}/violin_comparison.png")
     plot_error_over_time_multi(t_ref, errs_no_ref, f"{out}/error_over_time.png")
 
-    # ============================================================
+    # --------------------------------------------------------
     # 3) Fehlerfarbige Trajektorien
-    # ============================================================
+    # --------------------------------------------------------
     for name in names_all:
-        if name == os.path.basename(ref_path).replace(".csv", ""):
-            continue  # <-- Referenz überspringen
+        if name == names_all[0]:  # Referenz
+            continue
 
         px = csv_data[name]["interp"]["px"]
         py = csv_data[name]["interp"]["py"]
@@ -264,8 +298,8 @@ def run_multi_plot(csv_paths):
             f"{out}/traj_error_{name}.png"
         )
 
-
     print(f"\n✓ Multiplots gespeichert unter: {out}")
+
 
 
 
