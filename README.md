@@ -1,58 +1,14 @@
 # EAR SLAM Algorithms
 
-## rosbag konvertieren
+# Pose von DLIO aufnehmen und in .csv speichern
 
-```bash
-rosbags-convert \
-  --src /data/halltest4_small.bag \
-  --dst /data/halltest4_small_ros2_mcap \
-  --dst-storage mcap \
-  --dst-typestore ros2_humble
-```
-
-```bash
-ros2 bag info -s mcap /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap
-```
-
-```bash
-Files:             /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap
-Bag size:          5.4 GiB
-Storage id:        mcap
-Duration:          919.432676656s
-Start:             Aug  2 2023 12:37:39.668494163 (1690979859.668494163)
-End:               Aug  2 2023 12:52:59.101170819 (1690980779.101170819)
-Messages:          582076
-Topic information: 
-    Topic: /cmd_vel         | Type: geometry_msgs/msg/Twist     | Count: 4933   | Serialization Format: cdr
-    Topic: /odometry/imu    | Type: nav_msgs/msg/Odometry       | Count: 91948  | Serialization Format: cdr
-    Topic: /velodyne_points | Type: sensor_msgs/msg/PointCloud2 | Count: 9119   | Serialization Format: cdr
-    Topic: /imu/data        | Type: sensor_msgs/msg/Imu         | Count: 91974  | Serialization Format: cdr
-    Topic: /tf_static       | Type: tf2_msgs/msg/TFMessage      | Count: 1      | Serialization Format: cdr
-    Topic: /tf              | Type: tf2_msgs/msg/TFMessage      | Count: 361097 | Serialization Format: cdr
-    Topic: /odom            | Type: nav_msgs/msg/Odometry       | Count: 23004  | Serialization Format: cdr
-```
-
- Die PointCloud2-Struktur ist wie folgt:
- ```bash
- ubuntu@nils-B360M-DS3H:~/ros2_ws/src/direct_lidar_inertial_odometry$ sed -n '1,200p' /tmp/pcd.yaml header: stamp: sec: 1690979865 nanosec: 674972057 frame_id: velodyne height: 1 width: 26748 fields: - name: x offset: 0 datatype: 7 count: 1 - name: y offset: 4 datatype: 7 count: 1 - name: z offset: 8 datatype: 7 count: 1 - name: intensity offset: 12 datatype: 7 count: 1 - name: ring offset: 16 datatype: 4 count: 1 - name: time offset: 18 datatype: 7 count: 1 is_bigendian: false point_step: 22 row_step: 588456
- ```
- | Feld      | Typ      |
-|-----------|----------|
-| x         | float32  |
-| y         | float32  |
-| z         | float32  |
-| intensity | float32  |
-| ring      | uint16   |
-| time      | float32  |
-
-# Increase FastDDS message size limit
-
+## Schritt 1: Increase FastDDS message size limit
 Ursache:
 ```bash
 [dlio_odom_node-1] terminate called after throwing an instance of 'eprosima::fastcdr::exception::NotEnoughMemoryException' [dlio_odom_node-1] what(): Not enough memory in the buffer stream
 ```
 
-Wir erhöhen die FastDDS mit einer XML-Konfiguration:
+Lösung: Wir erhöhen die FastDDS mit einer XML-Konfiguration:
 ```bash
 touch ~/.ros/fastdds.xml
 ```
@@ -88,6 +44,26 @@ touch ~/.ros/fastdds.xml
 ```bash
 export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
 ```
+## Schritt 2: Wir starten drei Terminal und führen nachstehende Befehle aus
+Terminal 1:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 run slam_tools pose_logger
+```
+
+Terminal 2:
+```bash
+source install/setup.bash
+ros2 launch direct_lidar_inertial_odometry dlio.launch.py   pointcloud_topic:=/velodyne_points   imu_topic:=/imu/data   rviz:=false
+```
+
+Terminal 3:
+```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused
+```
+
+Ausgabe Terminal 2, nachdem das ros2 bag gestartet wurde
 ```bash
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 [dlio_odom_node-1] |               Direct LiDAR-Inertial Odometry v1.1.1               |
@@ -113,30 +89,12 @@ export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
 [dlio_odom_node-1] | RAM Allocation   :: 268.63 MB                                     |
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 ```
-# Pose von DLIO aufnehmen und in .csv speichern
-Terminal 1:
-```bash
-cd ~/ros2_ws
-source install/setup.bash
-ros2 run slam_tools pose_logger
-```
 
-Terminal 2:
-```bash
-source install/setup.bash
-ros2 launch direct_lidar_inertial_odometry dlio.launch.py   pointcloud_topic:=/velodyne_points   imu_topic:=/imu/data   rviz:=false
-```
+# ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
 
-Terminal 3:
-```bash
-ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused
-ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock -r 2
-```
+## Evaluierung im Vergleich mit LIO-SAM
 
-
-# Evaluierung im Vergleich mit LIO-SAM
-
-# Pose von SLAM-TOOLBOX (2D) aufnehmen und in .csv speichern
+## Pose von SLAM-TOOLBOX (2D) aufnehmen und in .csv speichern
 
 Terminal 1:
 ```bash
