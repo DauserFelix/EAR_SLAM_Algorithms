@@ -1,5 +1,13 @@
 # EAR SLAM Algorithms
 
+# Getting started
+## Schritt 1: Docker COntainer starten
+Wechsel in `docker` und führe nachstehenden Befehl aus:
+```bash
+./setup_and_run.sh
+```
+DAs Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws` 
+
 # Pose von DLIO aufnehmen und in .csv speichern
 
 ## Schritt 1: Increase FastDDS message size limit
