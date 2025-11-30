@@ -1,0 +1,77 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Open All Terminals",
+      "dependsOn": ["main", "terminal1", "terminal2", "terminal3", "terminal4"],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+
+    {
+      "label": "main",
+      "type": "shell",
+      "command": "",
+      "options": { "cwd": "${workspaceFolder}/ros2_ws" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "main-group",
+        "color": "terminal.ansiRed"
+      }
+    },
+
+    {
+      "label": "terminal1",
+      "type": "shell",
+      "command": "echo '# docker exec -it ros2_turtlebot3 bash'",
+      "options": { "cwd": "${workspaceFolder}/ros2_ws" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "blue-group",
+        "color": "terminal.ansiBlue"
+      }
+    },
+
+    {
+      "label": "terminal2",
+      "type": "shell",
+      "command": "echo '# docker exec -it ros2_turtlebot3 bash'",
+      "options": { "cwd": "${workspaceFolder}/ros2_ws" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "blue-group",
+        "color": "terminal.ansiBlue"
+      }
+    },
+
+    {
+      "label": "terminal3",
+      "type": "shell",
+      "command": "echo '# docker exec -it ros2_turtlebot3 bash'",
+      "options": { "cwd": "${workspaceFolder}/ros2_ws" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "blue-group",
+        "color": "terminal.ansiBlue"
+      }
+    },
+
+    {
+      "label": "terminal4",
+      "type": "shell",
+      "command": "echo '# docker exec -it ros2_turtlebot3 bash'",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "blue-group",
+        "color": "terminal.ansiBlue"
+      }
+    }
+  ]
+}

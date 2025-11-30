@@ -59,6 +59,38 @@ Ausgabe Terminal 2, nachdem das ros2 bag gestartet wurde
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 ```
 
+# Pose von LeGO-LOAM aufnehmen und in .csv speichern
+![status: experimental](https://img.shields.io/badge/status-experimental-orange)
+## Wir starten drei Terminal und führen nachstehende Befehle aus
+Terminal 1:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+/ros2_ws/src/slam_tools/slam_tools$ ./lego_pose_logger.py 
+```
+
+Terminal 2:
+```bash
+source install/setup.bash
+ros2 launch lego_loam_sr run.launch.py lidar_topic:=/velodyne_points rviz:=false
+```
+
+Terminal 3:
+```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
+```
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml
+
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap   --clock   --start-paused   --remap /tf:=/tf_disabled /tf_static:=/tf_static_disabled
+
+
+
+
 # ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
 
 ## Evaluierung im Vergleich mit LIO-SAM
