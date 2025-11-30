@@ -6,7 +6,7 @@ Wechsel in `docker` und führe nachstehenden Befehl aus:
 ```bash
 ./setup_and_run.sh
 ```
-DAs Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws`  
+Das Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws`  
 
 Hinweis:  
 Die Standard-Puffergrößen von FastDDS waren zu klein und führten zu `NotEnoughMemoryException`. Im Dockerfile wird die FastDDS-Konfiguration nun automatisch auf 64 MB gesetzt und die benötigte Umgebungsvariable (`FASTRTPS_DEFAULT_PROFILES_FILE`) wird automatisch auf den korrekten Pfad verlinkt.
