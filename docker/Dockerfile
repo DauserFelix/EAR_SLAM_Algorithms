@@ -94,16 +94,25 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && rm -rf /var/lib/apt/lists/*
 
 # TurtleBot3 Modell als Standard setzen
-#ENV TURTLEBOT3_MODEL=burger
+ENV TURTLEBOT3_MODEL=burger
 
 # ============================================================
-# === Abschnitt: Python-Pakete als root installieren       ===
-# Hier kannst du beliebige pip-Pakete installieren:
-#   pip install numpy scipy matplotlib ...
-# Das läuft als root, daher systemweite Installation.
+# === Abschnitt: Python-Pakete als Root installieren       ===
+# Installation zusätzlicher Python-Pakete im Systemkontext.
 # ============================================================
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+# ============================================================
+# === Abschnitt: FastDDS Konfiguration                     ===
+# Kopiert die fastdds.xml in ~/.ros und setzt die globale
+# Umgebungsvariable im Container.
+# ============================================================
+RUN mkdir -p /home/${USERNAME}/.ros
+COPY fastdds.xml /home/${USERNAME}/.ros/fastdds.xml
+RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.ros
+
+ENV FASTRTPS_DEFAULT_PROFILES_FILE=/home/${USERNAME}/.ros/fastdds.xml
 
 # ============================================================
 # === Abschnitt: Nutzer wechseln                          ===
@@ -113,10 +122,8 @@ USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
 # ============================================================
-# === Abschnitt: Python-Pakete als user installieren       ===
-# Hier kannst du beliebige pip-Pakete installieren:
-#   pip install numpy scipy matplotlib ...
-# Das läuft als root, daher systemweite Installation.
+# === Abschnitt: Python-Pakete als User installieren       ===
+# Hier werden zusätzliche Pakete im User-Kontext installiert.
 # ============================================================
 RUN pip install --no-cache-dir --user rosbags \
     && echo 'export PATH=/home/ubuntu/.local/bin:$PATH' >> /home/ubuntu/.bashrc

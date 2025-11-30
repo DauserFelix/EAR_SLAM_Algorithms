@@ -1,58 +1,19 @@
 # EAR SLAM Algorithms
 
 # Getting started
-## Schritt 1: Docker COntainer starten
+## Docker Container starten
 Wechsel in `docker` und führe nachstehenden Befehl aus:
 ```bash
 ./setup_and_run.sh
 ```
-DAs Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws` 
+DAs Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws`  
+
+Hinweis:  
+Die Standard-Puffergrößen von FastDDS waren zu klein und führten zu `NotEnoughMemoryException`. Im Dockerfile wird die FastDDS-Konfiguration nun automatisch auf 64 MB gesetzt und die benötigte Umgebungsvariable (`FASTRTPS_DEFAULT_PROFILES_FILE`) wird automatisch auf den korrekten Pfad verlinkt.
 
 # Pose von DLIO aufnehmen und in .csv speichern
 
-## Schritt 1: Increase FastDDS message size limit
-Ursache:
-```bash
-[dlio_odom_node-1] terminate called after throwing an instance of 'eprosima::fastcdr::exception::NotEnoughMemoryException' [dlio_odom_node-1] what(): Not enough memory in the buffer stream
-```
-
-Lösung: Wir erhöhen die FastDDS mit einer XML-Konfiguration:
-```bash
-touch ~/.ros/fastdds.xml
-```
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<dds>
-  <profiles>
-    <transport_descriptors>
-      <transport_descriptor>
-        <transport_id>udp_transport</transport_id>
-        <type>UDPv4</type>
-        <!-- Erhöhe die maximale Paketgröße -->
-        <maxMessageSize>65536000</maxMessageSize> <!-- 64 MB -->
-        <sendBufferSize>65536000</sendBufferSize> <!-- 64 MB -->
-        <receiveBufferSize>65536000</receiveBufferSize> <!-- 64 MB -->
-      </transport_descriptor>
-    </transport_descriptors>
-
-    <participant profile_name="dlio_participant" is_default_profile="true">
-      <rtps>
-        <builtin>
-          <metatrafficUnicastLocatorList>
-            <locator>
-              <transport_id>udp_transport</transport_id>
-            </locator>
-          </metatrafficUnicastLocatorList>
-        </builtin>
-      </rtps>
-    </participant>
-  </profiles>
-</dds>
-```
-```bash
-export FASTRTPS_DEFAULT_PROFILES_FILE=$HOME/.ros/fastdds.xml
-```
-## Schritt 2: Wir starten drei Terminal und führen nachstehende Befehle aus
+## Wir starten drei Terminal und führen nachstehende Befehle aus
 Terminal 1:
 ```bash
 cd ~/ros2_ws
