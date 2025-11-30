@@ -1,0 +1,33 @@
+services:
+  ros2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ear_slam_ros2          
+    container_name: ros2_turtlebot3
+    privileged: true              
+    network_mode: host              
+    tty: true
+    ipc: host
+
+    environment:
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      TURTLEBOT3_MODEL: burger
+
+    volumes:
+      # Dein Workspace vom Host in den Container
+      - ../ros2_ws:/home/ubuntu/ros2_ws
+      # X11-Socket für GUI (Gazebo, RViz)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Xauthority passend zum ubuntu-User im Container
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/ubuntu/.Xauthority:ro
+      # >>> Data-Verzeichnis mounten <<<
+      - ../data:/data
+      # >>> Output-Verzeichnis mounten <<<
+      - ../output:/output
+
+    # Einfach interaktive Shell
+    command: ["/bin/bash"]
+
+# Keine extra Volumes nötig, da du bind-mounts verwendest

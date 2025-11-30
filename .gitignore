@@ -237,3 +237,25 @@ cmake-build-*/
 # Catkin / Colcon Python stuff
 .colcon/
 catkin_generated/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+
+# ROS2 / Colcon (scoped)
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+.colcon/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake-install.cmake
+
+# Analyse-Outputs nicht committen
+ros2_ws/src/slam_tools/output/*
+ros2_ws/src/slam_tools/scripts/archiv
+data/*
+output/*
