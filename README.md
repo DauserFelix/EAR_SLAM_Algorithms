@@ -67,7 +67,7 @@ ros2 run plot_manager plot_manager
 ```
 
 # Pose von LeGO-LOAM aufnehmen und in .csv speichern
-![status: experimental](https://img.shields.io/badge/status-experimental-orange)
+![status: stable](https://img.shields.io/badge/status-stable-green)
 ## Wir starten drei Terminals und führen nachstehende Befehle aus
 Terminal 1:
 ```bash
@@ -86,14 +86,11 @@ Terminal 3:
 ```bash
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
 ```
-
-ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
-  --clock \
-  --start-paused \
-  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml
-
-
+Terminal 3 Alternative
+```bash
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap   --clock   --start-paused   --remap /tf:=/tf_disabled /tf_static:=/tf_static_disabled
+```
+Die Ergebnisse sind leider nicht gut. Vielleicht sollte die `config.yaml` näher begutachtet werden.
 
 
 
