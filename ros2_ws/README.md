@@ -83,6 +83,8 @@ ros2 topic echo /scan --once
 transformation anschauen zur simulierten Zeit
 ```bash
 ros2 run tf2_ros tf2_echo map liosam_base_link --ros-args -p use_sim_time:=true
+
+
 ```
 
 Struktur der PointCloud:
@@ -98,3 +100,173 @@ Die PointCloud2-Struktur ist wie folgt:
 | intensity | float32  |
 | ring      | uint16   |
 | time      | float32  |
+
+# Diverse Ausgaben von topics
+
+## /tf_static
+```bash
+ros2 topic echo /tf_static
+Some, but not all, publishers are offering QoSDurabilityPolicy.TRANSIENT_LOCAL. Falling back to QoSDurabilityPolicy.VOLATILE as it will connect to all publishers
+transforms:
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655983038
+    frame_id: L515
+  child_frame_id: L515_scan
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation:
+      x: 0.4999999999966269
+      y: 0.4999999999966269
+      z: 0.5000018366025517
+      w: -0.49999816339744835
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655993457
+    frame_id: halterung
+  child_frame_id: L515
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0231
+      z: 0.0445
+    rotation:
+      x: -2.597353007557415e-06
+      y: 0.7071080798547033
+      z: 0.707105482506466
+      w: -2.5973434669646147e-06
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655994448
+    frame_id: chassis_link
+  child_frame_id: base_arm
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    rotation:
+      x: -4.3297802811774664e-17
+      y: -0.7071067811865475
+      z: 0.7071067811865476
+      w: 4.329780281177467e-17
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655995672
+    frame_id: base_link
+  child_frame_id: chassis_link
+  transform:
+    translation:
+      x: 0.23
+      y: 0.0
+      z: 0.193
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655996071
+    frame_id: chassis_link
+  child_frame_id: boxlink
+  transform:
+    translation:
+      x: -0.57
+      y: -0.03
+      z: 0.1
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655997357
+    frame_id: chassis_link
+  child_frame_id: kamerabox
+  transform:
+    translation:
+      x: 0.235
+      y: 0.0
+      z: 0.0
+    rotation:
+      x: -0.7071080798594738
+      y: 0.0
+      z: 0.0
+      w: 0.7071054825112363
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655997729
+    frame_id: kamerabox
+  child_frame_id: halterung
+  transform:
+    translation:
+      x: 0.065
+      y: -0.1
+      z: 0.0
+    rotation:
+      x: -0.4999999999966269
+      y: -0.4999999999966269
+      z: 0.5000018366025517
+      w: -0.49999816339744835
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655998166
+    frame_id: velodyne
+  child_frame_id: imu
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.04
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655998602
+    frame_id: velodyne_base_link
+  child_frame_id: velodyne
+  transform:
+    translation:
+      x: 0.0
+      y: 0.0
+      z: 0.0377
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+- header:
+    stamp:
+      sec: 1690979774
+      nanosec: 655999846
+    frame_id: chassis_link
+  child_frame_id: velodyne_base_link
+  transform:
+    translation:
+      x: -0.655
+      y: 0.0
+      z: 0.2
+    rotation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+---
+```
