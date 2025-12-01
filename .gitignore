@@ -259,3 +259,6 @@ ros2_ws/src/slam_tools/output/*
 ros2_ws/src/slam_tools/scripts/archiv
 data/*
 output/*
+
+# tracke trotzdem alle Dateien in results/
+!results/**

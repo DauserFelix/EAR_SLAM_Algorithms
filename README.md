@@ -1,19 +1,21 @@
 # EAR SLAM Algorithms
 
 # Getting started
-## Docker Container starten
+## Schritt 1: Docker Container starten
+![ROS: Humble](https://img.shields.io/badge/ROS-Humble-blueviolet)
 Wechsel in `docker` und führe nachstehenden Befehl aus:
 ```bash
 ./setup_and_run.sh
 ```
 Das Bash-Skript erstellt den Docker-Container. Dieser ist dann unter `docker exec -it ros2_turtlebot3 bash` erreichbar. Der Workspace liegt unter `~/git/EAR_SLAM_Algorithms/ros2_ws`  
-
-Hinweis:  
-Die Standard-Puffergrößen von FastDDS waren zu klein und führten zu `NotEnoughMemoryException`. Im Dockerfile wird die FastDDS-Konfiguration nun automatisch auf 64 MB gesetzt und die benötigte Umgebungsvariable (`FASTRTPS_DEFAULT_PROFILES_FILE`) wird automatisch auf den korrekten Pfad verlinkt.
+## Schritt 2: ros2 packages bauen
+```bash
+colcon build
+```
 
 # Pose von DLIO aufnehmen und in .csv speichern
-
-## Wir starten drei Terminal und führen nachstehende Befehle aus
+![status: stable](https://img.shields.io/badge/status-stable-green)
+## Wir starten drei Terminals und führen nachstehende Befehle aus
 Terminal 1:
 ```bash
 cd ~/ros2_ws
@@ -29,7 +31,7 @@ ros2 launch direct_lidar_inertial_odometry dlio.launch.py   pointcloud_topic:=/v
 
 Terminal 3:
 ```bash
-ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
 ```
 
 Ausgabe Terminal 2, nachdem das ros2 bag gestartet wurde
@@ -59,9 +61,14 @@ Ausgabe Terminal 2, nachdem das ros2 bag gestartet wurde
 [dlio_odom_node-1] +-------------------------------------------------------------------+
 ```
 
+# Ergebnis plotten
+```bash
+ros2 run plot_manager plot_manager 
+```
+
 # Pose von LeGO-LOAM aufnehmen und in .csv speichern
 ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
-## Wir starten drei Terminal und führen nachstehende Befehle aus
+## Wir starten drei Terminals und führen nachstehende Befehle aus
 Terminal 1:
 ```bash
 cd ~/ros2_ws
