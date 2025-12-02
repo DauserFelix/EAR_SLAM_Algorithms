@@ -5,3 +5,7 @@
 [submodule "ros2_ws/src/LeGO-LOAM-ROS2"]
 	path = ros2_ws/src/LeGO-LOAM-ROS2
 	url = https://github.com/fishros/LeGO-LOAM-ROS2.git
+[submodule "ros2_ws/src/li_slam_ros2"]
+	path = ros2_ws/src/li_slam_ros2
+	url = https://github.com/rsasaki0109/li_slam_ros2.git
+	branch = humble
