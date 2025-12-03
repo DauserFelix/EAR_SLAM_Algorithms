@@ -97,8 +97,9 @@ Die Ergebnisse sind leider nicht gut. Vielleicht sollte die `config.yaml` näher
 # ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
 
 ## Schritt 1: Node starten
+Terminal 1
 ```bash
-ros2 run graph_based_slam graph_based_slam_node
+ros2 launch scanmatcher lio_bigloop.launch.py \
 ```
 ## To be continued
 # ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
@@ -120,6 +121,57 @@ use_save_map_in_loop:true
 [INFO] [1764634132.430734066] [graph_based_slam]: initialize Publishers and Subscribers
 [INFO] [1764634132.432184474] [graph_based_slam]: initialization end
 ```
+Terminal 2:
+```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data /odom /tf /tf_static \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw /odom:=/odometry
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw
+```
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data /odom \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw /odom:=/odometry
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Evaluierung im Vergleich mit LIO-SAM
 # ![status: experimental](https://img.shields.io/badge/status-experimental-orange)

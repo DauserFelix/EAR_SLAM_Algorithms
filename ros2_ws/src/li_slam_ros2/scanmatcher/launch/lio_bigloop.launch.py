@@ -19,6 +19,7 @@ def generate_launch_description():
         executable='scanmatcher_node',
         parameters=[mapping_param_dir],
         remappings=[('/input_cloud','/cloud_deskewed')],
+        arguments=['--ros-args', '-p', 'use_sim_time:=true'],
         output='screen'
         )
 
@@ -26,27 +27,31 @@ def generate_launch_description():
         package='graph_based_slam',
         executable='graph_based_slam_node',
         parameters=[mapping_param_dir],
+        arguments=['--ros-args', '-p', 'use_sim_time:=true'],
         output='screen'
         )
 
-    tf = launch_ros.actions.Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0','0','0','0','0','0','1','base_link','velodyne']
-        )
+    # tf = launch_ros.actions.Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     arguments=['0','0','0','0','0','0','1','base_link','velodyne']
+    #     )
 
     imu_pre = launch_ros.actions.Node(
         package='scanmatcher',
         executable='imu_preintegration',
         remappings=[('/odometry','/odom')],
         parameters=[mapping_param_dir],
+        arguments=['--ros-args', '-p', 'use_sim_time:=true'],
         output='screen'
         )
+
 
     img_pro = launch_ros.actions.Node(
         package='scanmatcher',
         executable='image_projection',
         parameters=[mapping_param_dir],
+        arguments=['--ros-args', '-p', 'use_sim_time:=true'],
         output='screen'
         )
     
@@ -57,7 +62,7 @@ def generate_launch_description():
             default_value=mapping_param_dir,
             description='Full path to mapping parameter file to load'),
         mapping,
-        tf,
+        #tf,
         imu_pre,
         img_pro,
         graphbasedslam,

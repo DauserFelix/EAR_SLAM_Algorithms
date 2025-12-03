@@ -32,7 +32,6 @@ RUN apt-get update && \
     xargs apt-get install -y --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-
 # ============================================================
 # === GTSAM aus Source installieren (für LeGO-LOAM)        ===
 # ============================================================
@@ -77,8 +76,6 @@ RUN git clone --branch has_use_cmake_fixes https://github.com/RainerKuemmerle/g2
     && make install \
     && ldconfig \
     && rm -rf /tmp/g2o
-
-
 
 ENV CMAKE_PREFIX_PATH="/usr/local:${CMAKE_PREFIX_PATH}"
 
