@@ -262,3 +262,5 @@ output/*
 
 # tracke trotzdem alle Dateien in results/
 !results/**
+
+docker-ros1/

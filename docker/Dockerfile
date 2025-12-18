@@ -33,22 +33,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================================
-# === GTSAM aus Source installieren (für LeGO-LOAM)        ===
-# ============================================================
-# RUN wget -O /tmp/gtsam.zip https://github.com/borglab/gtsam/archive/4.2.0.zip \
-#     && unzip /tmp/gtsam.zip -d /tmp/ \
-#     && cd /tmp/gtsam-4.2.0 \
-#     && mkdir build && cd build \
-#     && cmake -DCMAKE_BUILD_TYPE=Release \
-#              -DGTSAM_USE_SYSTEM_EIGEN=ON \
-#              -DEIGEN_INCLUDE_DIR=/usr/include/eigen3 \
-#              .. \
-#     && make -j$(nproc) \
-#     && make install \
-#     && ldconfig \
-#     && rm -rf /tmp/gtsam*
-
-# ============================================================
 # === GTSAM installieren (über offizielles Borglab PPA) =======
 # ============================================================
 RUN apt-get update && \

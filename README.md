@@ -84,6 +84,7 @@ ros2 launch lego_loam_sr run.launch.py lidar_topic:=/velodyne_points rviz:=false
 
 Terminal 3:
 ```bash
+source install/setup.bash
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
 ```
 Terminal 3 Alternative
@@ -91,6 +92,27 @@ Terminal 3 Alternative
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap   --clock   --start-paused   --remap /tf:=/tf_disabled /tf_static:=/tf_static_disabled
 ```
 Die Ergebnisse sind leider nicht gut. Vielleicht sollte die `config.yaml` näher begutachtet werden.
+
+# FAST-LIO aufnehmen
+# ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
+## Wir starten drei Terminals und führen nachstehende Befehle aus
+Terminal 1:
+```bash
+source install/setup.bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
+```
+Terminal 2:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 run slam_tools fast_lio_pose_logger
+```
+Terminal 3:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 launch fast_lio mapping.launch.py config_file:=velodyne.yaml
+```
 
 
 # Li-SLAM aufnehmen
