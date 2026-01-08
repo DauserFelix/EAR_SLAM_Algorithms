@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'pose_logger = slam_tools.pose_logger:main',
             'imu_logger = slam_tools.imu_logger:main',
+            'fast_lio_pose_logger = slam_tools.fast_lio_pose_logger:main',
 
         ],
     },

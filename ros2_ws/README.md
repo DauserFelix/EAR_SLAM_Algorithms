@@ -83,8 +83,11 @@ ros2 topic echo /scan --once
 transformation anschauen zur simulierten Zeit
 ```bash
 ros2 run tf2_ros tf2_echo map liosam_base_link --ros-args -p use_sim_time:=true
+```
 
-
+frames erzeugen:
+```bash
+ros2 run tf2_tools view_frames
 ```
 
 Struktur der PointCloud:

@@ -84,6 +84,7 @@ ros2 launch lego_loam_sr run.launch.py lidar_topic:=/velodyne_points rviz:=false
 
 Terminal 3:
 ```bash
+source install/setup.bash
 ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
 ```
 Terminal 3 Alternative
@@ -92,13 +93,110 @@ ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap   -
 ```
 Die Ergebnisse sind leider nicht gut. Vielleicht sollte die `config.yaml` näher begutachtet werden.
 
+# FAST-LIO aufnehmen
+# ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
+## Wir starten drei Terminals und führen nachstehende Befehle aus
+Terminal 1:
+```bash
+source install/setup.bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap --clock --start-paused --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml 
+```
+Terminal 2:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 run slam_tools fast_lio_pose_logger
+```
+Terminal 3:
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 launch fast_lio mapping.launch.py config_file:=velodyne.yaml
+```
 
 
-
+# Li-SLAM aufnehmen
 # ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
 
-## Evaluierung im Vergleich mit LIO-SAM
+## Schritt 1: Node starten
+Terminal 1
+```bash
+ros2 launch scanmatcher lio_bigloop.launch.py \
+```
+## To be continued
+# ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
+Ausgabe:
+```bash
+[INFO] [1764634132.428558577] [graph_based_slam]: initialization start
+registration_method:NDT
+voxel_leaf_size[m]:0.2
+ndt_resolution[m]:5
+ndt_num_threads:0
+loop_detection_period[Hz]:1000
+threshold_loop_closure_score:1
+distance_loop_closure[m]:20
+range_of_searching_loop_closure[m]:20
+search_submap_num:3
+num_adjacent_pose_cnstraints:5
+use_save_map_in_loop:true
+------------------
+[INFO] [1764634132.430734066] [graph_based_slam]: initialize Publishers and Subscribers
+[INFO] [1764634132.432184474] [graph_based_slam]: initialization end
+```
+Terminal 2:
+```bash
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data /odom /tf /tf_static \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw /odom:=/odometry
 
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw
+```
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml \
+  --topics /velodyne_points /imu/data /odom \
+  --remap /imu/data:=/imu_correct /velodyne_points:=/points_raw /odom:=/odometry
+
+ros2 bag play /data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap \
+  --clock \
+  --start-paused \
+  --qos-profile-overrides-path /data/halltest4_small_ros2_mcap/qos_tf.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Evaluierung im Vergleich mit LIO-SAM
+# ![status: experimental](https://img.shields.io/badge/status-experimental-orange)
 ## Pose von SLAM-TOOLBOX (2D) aufnehmen und in .csv speichern
 
 Terminal 1:
