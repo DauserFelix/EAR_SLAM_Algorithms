@@ -139,22 +139,31 @@ def plot_histogram_multi(errors_dict, save_path="hist_multi.png"):
         plt.hist(
             err,
             bins=40,
-            alpha=0.4,
+            alpha=0.35,
             label=name,
             color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)],
-            edgecolor="black"
+            edgecolor="black",
+            linestyle=ACCESSIBLE_LINESTYLES[i % len(ACCESSIBLE_LINESTYLES)],
+            linewidth=1.4,
         )
 
     plt.xlabel("XY Error [m]", fontsize=18)
     plt.ylabel("Count", fontsize=18)
     plt.title("Histogram Comparison", fontsize=20, fontweight="bold")
     plt.grid(True, linestyle="--", alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
 
+    plt.legend(
+        fontsize=14,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor="black"
+    )
+
+    plt.tight_layout()
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
 
 # ===================================================================
 # BARRIEREFREIER CDF-PLOT
@@ -200,20 +209,28 @@ def plot_cdf_multi(errors_dict, save_path="cdf_multi.png"):
         plt.plot(
             e, cdf,
             label=name,
-            linewidth=2.5,
+            linewidth=2.8,
             color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)],
+            linestyle=ACCESSIBLE_LINESTYLES[i % len(ACCESSIBLE_LINESTYLES)],
         )
 
     plt.xlabel("XY Error [m]", fontsize=18)
     plt.ylabel("CDF", fontsize=18)
     plt.title("CDF Comparison", fontsize=20, fontweight="bold")
     plt.grid(True, linestyle="--", alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
 
+    plt.legend(
+        fontsize=14,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor="black"
+    )
+
+    plt.tight_layout()
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
 
 # ===================================================================
 # BARRIEREFREIE HEATMAP
@@ -303,6 +320,27 @@ def plot_error_vs_imu(dlio, err_norm, t_dlio, save_path):
 # ===================================================================
 # BARRIEREFREIE MULTI ERROR OVER TIME
 # ===================================================================
+# def plot_error_over_time_multi(t_ref, errors_dict, save_path="error_over_time.png"):
+#     plt.figure(figsize=(10, 7))
+
+#     for i, (name, err) in enumerate(errors_dict.items()):
+#         plt.plot(
+#             t_ref, err,
+#             label=name,
+#             linewidth=2.5,
+#             color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)]
+#         )
+
+#     plt.xlabel("Time [s]", fontsize=18)
+#     plt.ylabel("XY Error [m]", fontsize=18)
+#     plt.title("Error Over Time", fontsize=20, fontweight="bold")
+#     plt.grid(True, linestyle="--", alpha=0.3)
+#     plt.legend()
+#     plt.tight_layout()
+
+#     plt.savefig(save_path, dpi=200)
+#     plt.savefig(save_path.replace(".png", ".svg"))
+#     plt.close()
 def plot_error_over_time_multi(t_ref, errors_dict, save_path="error_over_time.png"):
     plt.figure(figsize=(10, 7))
 
@@ -310,42 +348,87 @@ def plot_error_over_time_multi(t_ref, errors_dict, save_path="error_over_time.pn
         plt.plot(
             t_ref, err,
             label=name,
-            linewidth=2.5,
-            color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)]
+            linewidth=2.8,
+            color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)],
+            linestyle=ACCESSIBLE_LINESTYLES[i % len(ACCESSIBLE_LINESTYLES)],
         )
 
     plt.xlabel("Time [s]", fontsize=18)
     plt.ylabel("XY Error [m]", fontsize=18)
     plt.title("Error Over Time", fontsize=20, fontweight="bold")
     plt.grid(True, linestyle="--", alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
 
+    plt.legend(
+        fontsize=14,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor="black"
+    )
+
+    plt.tight_layout()
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
 
 # ===================================================================
 # BARRIEREFREIE accessible HEXBIN PLOT
 # ===================================================================
 
-def plot_accessible_hexbin(x, y, xlabel, ylabel, title, save_path):
-    plt.figure(figsize=(8,6))
-    hb = plt.hexbin(
-        x, y,
-        gridsize=60,
-        cmap="viridis",
-        mincnt=1
+def plot_accessible(
+    curves,
+    xlabel="",
+    ylabel="",
+    title="",
+    save_path="plot.png",
+    equal_axis=False,
+    downsample=30
+):
+    """
+    curves = [
+        {"x": array, "y": array, "label": "..."},
+        {"x": array, "y": array, "label": "..."}
+    ]
+    """
+
+    plt.figure(figsize=(10, 7))
+
+    for i, c in enumerate(curves):
+        x = c["x"][::downsample]
+        y = c["y"][::downsample]
+
+        plt.plot(
+            x, y,
+            label=c.get("label", None),
+            linewidth=2.6,
+            color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)],
+            linestyle=ACCESSIBLE_LINESTYLES[i % len(ACCESSIBLE_LINESTYLES)],
+        )
+
+    plt.xlabel(xlabel, fontsize=18)
+    plt.ylabel(ylabel, fontsize=18)
+    plt.title(title, fontsize=20, fontweight="bold")
+
+    plt.grid(True, linestyle="--", alpha=0.25)
+
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+
+    if equal_axis:
+        plt.axis("equal")
+
+    plt.legend(
+        fontsize=14,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor="black"
     )
-    plt.colorbar(hb, label="Count")
-    plt.xlabel(xlabel, fontsize=14)
-    plt.ylabel(ylabel, fontsize=14)
-    plt.title(title, fontsize=16)
-    plt.grid(True, linestyle="--", alpha=0.3)
+
     plt.tight_layout()
     plt.savefig(save_path, dpi=200)
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
+
 
 # ===================================================================
 # BARRIEREFREIER error VS YAW PLOT
@@ -693,4 +776,32 @@ def plot_trajectory_with_frames(
     plt.savefig(save_path.replace(".png", ".svg"))
     plt.close()
 
+def plot_error_over_time_multi_varlen(errors_dict, save_path="error_over_time.png"):
+    plt.figure(figsize=(10, 7))
+
+    for i, (name, d) in enumerate(errors_dict.items()):
+        plt.plot(
+            d["t"], d["err"],
+            label=name,
+            linewidth=1.5,
+            color=ACCESSIBLE_COLORS[i % len(ACCESSIBLE_COLORS)],
+            linestyle=ACCESSIBLE_LINESTYLES[i % len(ACCESSIBLE_LINESTYLES)],
+        )
+
+    plt.xlabel("Time [s]", fontsize=18)
+    plt.ylabel("XY Error [m]", fontsize=18)
+    plt.title("Error Over Time", fontsize=20, fontweight="bold")
+    plt.grid(True, linestyle="--", alpha=0.3)
+
+    plt.legend(
+        fontsize=14,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor="black"
+    )
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=200)
+    plt.savefig(save_path.replace(".png", ".svg"))
+    plt.close()
 

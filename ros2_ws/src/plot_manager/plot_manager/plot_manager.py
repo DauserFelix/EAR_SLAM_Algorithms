@@ -23,14 +23,14 @@ from plot_manager.accessible_plots import (
     plot_yaw_error,
     plot_error_vs_imu,
     plot_error_over_time_multi,
-    plot_accessible_hexbin,
     plot_error_vs_yaw,
     plot_yaw_heatmap,
     plot_yaw_derivative_vs_error,
     plot_error_violin,
     plot_violin_multi,
     plot_trajectory_colored_by_error,
-    plot_trajectory_with_frames
+    plot_trajectory_with_frames,
+    plot_error_over_time_multi_varlen
 )
 
 
@@ -300,6 +300,114 @@ def run_multi_plot(csv_paths):
 
     print(f"\n✓ Multiplots gespeichert unter: {out}")
 
+def run_multi_plot_v2(csv_paths):
+    print("\n=== MULTI PLOT v2 (variable Länge) ===")
+    out = make_output_folder("Multiplot_v2")
+
+    # --------------------------------------------------------
+    # Referenz laden (nur für Fehlerberechnung)
+    # --------------------------------------------------------
+    ref_path = csv_paths[0]
+    ref = load_csv(ref_path)
+    t_ref = ref["time_sec"].values
+    t_ref0 = t_ref[0]
+
+    names_all = []
+    names_plot = []
+    traj_curves = []
+    errors_stat = {}      # für CDF / Histogram
+    errors_time = {}      # für Error-over-Time (variable Länge)
+
+    # --------------------------------------------------------
+    # CSVs verarbeiten
+    # --------------------------------------------------------
+    for path in csv_paths:
+        name = os.path.basename(path).replace(".csv", "")
+        df = load_csv(path)
+
+        print(f"→ Verarbeitung: {name}")
+        names_all.append(name)
+
+        # ----------------------------
+        # Trajektorie (RAW)
+        # ----------------------------
+        traj_curves.append({
+            "x": df["px"].values,
+            "y": df["py"].values,
+            "label": name
+        })
+
+        # Referenz selbst: kein Fehler
+        if path == ref_path:
+            continue
+
+        names_plot.append(name)
+
+        # ----------------------------
+        # Zeit-Overlap bestimmen
+        # ----------------------------
+        t_algo = df["time_sec"].values
+        t_end = min(t_ref[-1], t_algo[-1])
+
+        mask_ref  = t_ref  <= t_end
+        mask_algo = t_algo <= t_end
+
+        ref_cut  = ref.loc[mask_ref].reset_index(drop=True)
+        algo_cut = df.loc[mask_algo].reset_index(drop=True)
+
+        # Zeit auf gemeinsamen Start normieren (nur lokal)
+        t_err = algo_cut["time_sec"].values - algo_cut["time_sec"].values[0]
+
+        # ----------------------------
+        # Fehler OHNE Interpolation
+        # (Indexweise, gleiche Länge durch Overlap)
+        # ----------------------------
+        N = min(len(ref_cut), len(algo_cut))
+        ref_cut  = ref_cut.iloc[:N]
+        algo_cut = algo_cut.iloc[:N]
+        t_err    = t_err[:N]
+
+        ex = algo_cut["px"].values - ref_cut["px"].values
+        ey = algo_cut["py"].values - ref_cut["py"].values
+        err_xy = np.sqrt(ex**2 + ey**2)
+
+        errors_stat[name] = err_xy
+        errors_time[name] = {
+            "t": t_err,
+            "err": err_xy
+        }
+
+    # --------------------------------------------------------
+    # 1) Trajektorienvergleich (variable Länge)
+    # --------------------------------------------------------
+    plot_accessible(
+        traj_curves,
+        xlabel="x [m]",
+        ylabel="y [m]",
+        title="Trajectory Comparison",
+        save_path=f"{out}/trajectories.png",
+        equal_axis=True
+    )
+
+    # --------------------------------------------------------
+    # 2) Error Over Time (variable Länge)
+    # --------------------------------------------------------
+    plot_error_over_time_multi_varlen(errors_time,
+        f"{out}/error_over_time.png"
+    )
+
+
+    # --------------------------------------------------------
+    # 3) CDF Comparison
+    # --------------------------------------------------------
+    plot_cdf_multi(errors_stat, f"{out}/cdf_comparison.png")
+
+    # --------------------------------------------------------
+    # 4) Histogram Comparison
+    # --------------------------------------------------------
+    plot_histogram_multi(errors_stat, f"{out}/hist_comparison.png")
+
+    print(f"\n✓ Multiplot v2 gespeichert unter: {out}")
 
 
 
@@ -311,6 +419,7 @@ def main():
     print("SLAM Plot Manager")
     print("1 = Single Plot")
     print("2 = Multi Plot")
+    print("3 = Multi Plot v2")
 
     mode = int(input("Auswahl: "))
 
@@ -340,6 +449,20 @@ def main():
 
         paths = [os.path.join("/data", files[i]) for i in selected]
         run_multi_plot(paths)
+
+    elif mode == 3:
+        print("Wähle erste CSV als Referenz:")
+        ref = int(input("Referenz: "))
+
+        selected = [ref]
+        while True:
+            s = input("Weitere CSV auswählen (ENTER zum Beenden): ")
+            if s == "":
+                break
+            selected.append(int(s))
+
+        paths = [os.path.join("/data", files[i]) for i in selected]
+        run_multi_plot_v2(paths)
 
 
 if __name__ == "__main__":
