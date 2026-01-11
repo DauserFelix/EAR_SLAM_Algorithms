@@ -1,4 +1,6 @@
 # Docker – ROS 2 Humble Environment
+![Docker Enabled](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)
+
 Dieses Verzeichnis enthält das vollständige Docker-Setup für die ROS 2-basierte EAR-SLAM-Entwicklung, inkl. TurtleBot3, GTSAM, g2o, RViz/Gazebo, rosbag-Replay.
 
 ## Ordnerstruktur
