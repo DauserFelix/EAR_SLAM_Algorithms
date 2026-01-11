@@ -95,7 +95,7 @@ Die PointCloud2-Struktur ist wie folgt:
  ```bash
  ubuntu@nils-B360M-DS3H:~/ros2_ws/src/direct_lidar_inertial_odometry$ sed -n '1,200p' /tmp/pcd.yaml header: stamp: sec: 1690979865 nanosec: 674972057 frame_id: velodyne height: 1 width: 26748 fields: - name: x offset: 0 datatype: 7 count: 1 - name: y offset: 4 datatype: 7 count: 1 - name: z offset: 8 datatype: 7 count: 1 - name: intensity offset: 12 datatype: 7 count: 1 - name: ring offset: 16 datatype: 4 count: 1 - name: time offset: 18 datatype: 7 count: 1 is_bigendian: false point_step: 22 row_step: 588456
  ```
- | Feld      | Typ      |
+| Feld      | Typ      |
 |-----------|----------|
 | x         | float32  |
 | y         | float32  |
