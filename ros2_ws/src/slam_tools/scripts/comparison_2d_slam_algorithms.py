@@ -56,7 +56,7 @@ def main():
     tmin, tmax = cut_to_overlap(t_slam, t_dlio, t_lio)
     print(f"Gemeinsamer Bereich: {tmin:.3f} – {tmax:.3f} (Δ={tmax-tmin:.1f}s)")
 
-    # SLAM Toolbox als Referenzzeit -> schneiden
+    # SLAM Toolbox als Referenzzeit
     t_slam_cut, [px_slam, py_slam] = apply_time_window(
         t_slam,
         slam["px"].values,
