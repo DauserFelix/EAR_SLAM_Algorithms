@@ -31,7 +31,7 @@ from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import TransformStamped
 
 # ----------------------------------------------------
-# CONFIG
+# Konfiguration
 # ----------------------------------------------------
 BAG_PATH = "/data/halltest4_small_ros2_mcap/halltest4_small_ros2_mcap.mcap"
 TARGET_FRAME = "map"
@@ -40,7 +40,7 @@ OUTPUT_CSV = "/data/lio_sam.csv"
 
 
 # ----------------------------------------------------
-# Quaternion helpers
+# Quaternion helper Funktionen
 # ----------------------------------------------------
 def quaternion_matrix(q):
     x, y, z, w = q
@@ -113,10 +113,9 @@ def quat_mul(q1, q2):
 
 
 # ----------------------------------------------------
-# Quaternion logarithm → exact angular velocity
+# Quaternion Logarithmus
 # ----------------------------------------------------
 def quat_log(q):
-    """Return vector part of quaternion logarithm (so3 element)."""
     x, y, z, w = q
     v = np.array([x, y, z])
     nv = np.linalg.norm(v)
@@ -237,12 +236,12 @@ def main():
                 dt = timestamp - last_time
                 if dt > 0:
 
-                    # linear velocity
+                    # linear vel
                     vx = (px - last_pos[0]) / dt
                     vy = (py - last_pos[1]) / dt
                     vz = (pz - last_pos[2]) / dt
 
-                    # exact angular velocity
+                    # exact angular vel
                     q_inv = np.array([-last_q[0], -last_q[1], -last_q[2], last_q[3]])
                     q_delta = quat_mul(q_inv, q_curr)
 
