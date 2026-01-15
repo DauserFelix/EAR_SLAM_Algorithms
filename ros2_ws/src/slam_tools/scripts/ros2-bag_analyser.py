@@ -40,7 +40,7 @@ def pretty_print_bag_info(metadata):
     print(f"Bag size:          {metadata.bag_size} bytes")
     print(f"Storage id:        {metadata.storage_identifier}")
 
-    # Convert nanosecond fields properly
+    # Konvertiere Nanosekunden
     duration_sec = metadata.duration.nanoseconds / 1e9
     start_time_sec = metadata.starting_time.nanoseconds / 1e9
 
@@ -96,7 +96,7 @@ def analyze_tf_frames(bag_path):
                 if stamp > f["last_stamp"]:
                     f["last_stamp"] = stamp
 
-        # Progress updates
+        # Fortschritt updaten
         if total_tf % 20000 == 0:
             print(f"Processed {total_tf} transforms...")
 
