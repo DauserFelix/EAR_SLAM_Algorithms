@@ -1,4 +1,5 @@
 # EAR SLAM Algorithms
+Unsere Projektarbeit wurde unter Ubuntu 22.04.5 LTS (Jammy Jellyfish) mit Intel(R) Core(TM) i5-9600K CPU @ 3.70GHz und NVIDIA GeForce RTX 2060 aufgesetzt und getestet.
 
 # Getting started
 ## Schritt 1: Docker Container starten
