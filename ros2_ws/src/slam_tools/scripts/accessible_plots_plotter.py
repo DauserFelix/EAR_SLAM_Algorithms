@@ -1,4 +1,3 @@
-# accessible_plots.py
 from accessible_plots_calculation import (
     quaternion_to_yaw,
     compute_yaw_error,
