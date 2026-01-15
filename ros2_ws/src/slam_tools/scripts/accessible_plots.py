@@ -1,6 +1,3 @@
-# accessible_plots.py
-# Barrierefreie Plot-Utilities für wissenschaftliche Analysen
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import linregress
@@ -357,7 +354,6 @@ def plot_error_violin(err_norm, save_path):
     ax.set_xlabel("DLIO")
     ax.set_ylabel("XY Error [m]")
 
-    # Kein unnötiges x-Grid
     ax.set_xlim(-0.5, 0.5)
     ax.set_xticks([0])
     ax.set_xticklabels(["DLIO"])
