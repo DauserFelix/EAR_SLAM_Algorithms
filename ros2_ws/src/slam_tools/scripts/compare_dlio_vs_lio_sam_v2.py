@@ -87,7 +87,6 @@ def load_and_prepare():
     lio = pd.read_csv(LIO_SAM_CSV)
     dlio = pd.read_csv(dlio_path)
 
-    # Bessere Filterung
     dlio = dlio[(dlio["px"].abs() > 1e-6) | (dlio["py"].abs() > 1e-6)].copy()
     dlio = dlio.reset_index(drop=True)
 
@@ -110,7 +109,7 @@ def interpolate_lio_to_dlio(dlio, lio):
     t_dlio = t_dlio - t_dlio[0]
     t_lio  = t_lio  - t_lio[0]
 
-    # Interpolation ALLER relevanter Größen
+    # Interpolation der relevanten Größen
     lio_interp = {
         ax: np.interp(t_dlio, t_lio, lio[ax].values)
         for ax in ["px", "py", "pz", "qx", "qy", "qz", "qw"]
@@ -120,10 +119,8 @@ def interpolate_lio_to_dlio(dlio, lio):
         t_dlio,
         dlio["px"].values.copy(),
         dlio["py"].values.copy(),
-        lio_interp  # WICHTIG: komplettes Dict zurückgeben!
+        lio_interp
     )
-
-
 
 # ======================================================
 # Normalisieren
@@ -211,7 +208,7 @@ def compute_velocity(dlio):
 
 
 def compute_acceleration(dlio):
-    ax = dlio["wx"].values * 0  # falls keine accelerometer-Daten: Dummy
+    ax = dlio["wx"].values * 0
     ay = dlio["wy"].values * 0
     az = dlio["wz"].values * 0
 
@@ -236,7 +233,7 @@ def main():
     # Laden
     dlio, lio = load_and_prepare()
 
-    # Interpolation (liefert komplettes Dict zurück)
+    # Interpolation
     t_dlio, px_dlio, py_dlio, lio_interp = interpolate_lio_to_dlio(dlio, lio)
 
     # Extrahieren der LIO-SAM Werte aus dem Dict
@@ -330,7 +327,7 @@ def main():
     acc_mag = compute_acceleration(dlio)
     gyro_z  = compute_gyro_z(dlio)
 
-    # Downsample für Heatmaps (Performance)
+    # Downsample für Heatmaps
     ds = slice(0, len(err_norm), 10)
 
     # ----------------------------------------
@@ -350,8 +347,7 @@ def main():
         t_dlio[ds], err_norm[ds], vel_mag[ds],
         save_path=os.path.join(OUT_DIR, "error_vs_vel.png")
     )
-
-    # --- Neue Diagnostikplots ---
+   
     yaw_err = np.unwrap(np.arctan2(
         2*(dlio["qw"]*dlio["qz"] + dlio["qx"]*dlio["qy"]),
         1 - 2*(dlio["qy"]**2 + dlio["qz"]**2)
@@ -373,7 +369,6 @@ def main():
 
     print("Alle 2D Plots gespeichert.")
     print("2D Analyse abgeschlossen.")
-
 
 # ======================================================
 # Script-Start
